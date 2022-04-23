@@ -69,3 +69,11 @@ link.find_element_by_tag_name('a').click()
 
 #driver.quit()
 #sys.exit()
+
+
+'''
+docker run -d -p 4444:4444 -p 7900:7900 --shm-size="2g" selenium/standalone-chrome:4.1.3-20220405
+
+docker run -d -p 4444:4444 -p 7900:7900 -v C:/Users/user/Downloads:/home/seluser/Downloads --shm-size="2g" selenium/standalone-chrome:4.1.3-20220405
+
+'''
