@@ -62,6 +62,7 @@ WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.ID, 'ycWrConte
 link = driver.find_element_by_class_name("fileNum")
 link.find_element_by_tag_name('a').click()
 
+time.sleep(20) #ダウンロード終わらないうちに終わらないため。ここをなんとかしないといけん。
 
 driver.quit()
 sys.exit()
