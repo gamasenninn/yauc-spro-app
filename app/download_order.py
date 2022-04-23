@@ -51,13 +51,9 @@ except Exception as e:
 #-- jump search page  ---
 url = f'{pro_url}/order/manage/index'
 driver.get(url)
-#soup = bs4(driver.page_source,'html.parser')
-#print (soup)
 
 #from_day = driver.find_element_by_id("OrderTimeFromDayE")
 #from_day.send_keys("2022/03/09")
-
-
 
 btns = driver.find_elements_by_class_name("btnBlL")
 btns[1].find_element_by_tag_name('a').click()
@@ -67,8 +63,8 @@ link = driver.find_element_by_class_name("fileNum")
 link.find_element_by_tag_name('a').click()
 
 
-#driver.quit()
-#sys.exit()
+driver.quit()
+sys.exit()
 
 
 '''
