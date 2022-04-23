@@ -94,6 +94,50 @@ for tr in trs:
 
 print(use_list)
 
+
+
+
+
 #time.sleep(30)
-driver.quit()
+#driver.quit()
 sys.exit()
+
+
+driver.get('https://onavi.auctions.yahoo.co.jp/onavi/show/storelist?select=won&page=1&op=9&od=2&rpp=100')
+
+
+elms = driver.find_element_by_id("td4_0")
+
+df = pd.DataFrame()
+for row in range(100):
+    dic ={}
+    for col in range(3,6):
+        tid = "td"+str(col)+"_"+str(row)
+        elm = driver.find_element_by_id(tid)
+        if (elm) : 
+            elms_tr = elm.find_elements_by_tag_name("tr")
+            for tr in elms_tr:
+                elms_td = tr.find_elements_by_tag_name("td")
+                k = elms_td[0].text.replace('（税込）','')
+                v = elms_td[1].text.replace('\n','')
+                print ("["+k+"] "+v)
+                dic[k] =v
+        else:
+            break
+    #print(dic)
+    df = df.append(dic, ignore_index=True)
+
+df['オークションID'] = df['オークションID'].str.replace('（商品ページ）','')
+df['郵便番号'] = df['お届け先住所'].str.split(pat=' ',expand=True)[0]
+df['住所'] = df['お届け先住所'].str.split(pat=' ',expand=True)[1]
+df['氏名'] = df['お届け先氏名'].str.split(pat='（|） ',expand=True)[0]
+df['フリガナ'] = df['お届け先氏名'].str.split(pat='（|） ',expand=True)[1]
+
+
+df2 = df[['管理番号','オークションID','タイトル','落札日時','落札者',
+          '氏名','フリガナ','郵便番号','住所','お届け先電話','落札者氏名',
+          '落札者メール','落札金額','かんたん決済支払期限']]
+df2.to_csv('won\\wonlist_'+str(datetime.date.today())+'.csv')
+
+driver.quit()
+
