@@ -21,6 +21,8 @@ login_id = os.environ['YLOGINID']
 login_password = os.environ['YPASSWORD']
 pro_url= os.environ['PRO_URL']
 order_base_url = os.environ['ORDER_BASE_URL']
+download_dir = os.environ['DOWNLOAD_DIR']
+order_filename = os.environ['ORDER_FILENAME']
 
 options = webdriver.ChromeOptions()
 driver = webdriver.Remote(
@@ -44,6 +46,11 @@ btns[1].find_element_by_tag_name('a').click()
 WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.ID, 'ycWrContentsFix')))
 link = driver.find_element_by_class_name("fileNum")
 link.find_element_by_tag_name('a').click()
+
+
+
+
+
 
 time.sleep(20) #ダウンロード終わらないうちに終わらないため。ここをなんとかしないといけん。
 
