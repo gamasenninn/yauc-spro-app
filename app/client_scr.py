@@ -17,6 +17,8 @@ import datetime
 #import gspread
 #import gspread_dataframe as gs_df
 from webdriver_manager.chrome import ChromeDriverManager
+from ypro_login import ypro_login
+
 
 load_dotenv()
 
@@ -36,32 +38,7 @@ driver = webdriver.Remote(
     options=options,
 )
 #-----ヤフオクを開く------
-'''
-driver.get('https://auctions.yahoo.co.jp/')
-print(driver.current_url)
-#time.sleep(2)
-
-WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.CLASS_NAME, 'TextBold-sc-1u4qbnp')))
-
-e = driver.find_element_by_class_name("TextBold-sc-1u4qbnp")
-'''
-print("try login.....")
-#driver.get('https://login.yahoo.co.jp/config/login')
-#time.sleep(2)
-try:
-    driver.get(pro_url)
-    WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.ID, 'username')))
-    search_box = driver.find_element_by_id("username")
-    search_box.send_keys(login_id)
-    driver.find_element_by_id("btnNext").click()
-    time.sleep(1) #なぜかしら必要。waitのタイミング？
-    WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.ID, 'passwd')))
-    search_box = driver.find_element_by_id("passwd")
-    search_box.send_keys(login_password)
-    driver.find_element_by_id("btnSubmit").click()
-    print("OK log in!")
-except Exception as e:
-        print(e)
+ypro_login(driver)
 
 #-- amount list---
 driver.get(pro_url+'/amount/clearing')
@@ -99,5 +76,5 @@ print(use_list)
 
 
 #time.sleep(30)
-#driver.quit()
+driver.quit()
 sys.exit()
