@@ -14,4 +14,4 @@ df = pd.read_csv(csv_path, encoding='cp932')
 engine = create_engine(f'sqlite:///{db_name}.db', echo=False)
 df.to_sql("order", engine, if_exists='replace')
 
-print("updated DB....OK")
+print("updated DB!")
