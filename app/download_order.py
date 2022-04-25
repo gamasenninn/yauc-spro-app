@@ -43,24 +43,27 @@ driver.get(url)
 btns = driver.find_elements_by_class_name("btnBlL")
 btns[1].find_element_by_tag_name('a').click()
 
+# remove down load file
+file_path = os.path.join(download_dir,order_filename)
+os.remove(file_path)
+
+# download
 WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.ID, 'ycWrContentsFix')))
 link = driver.find_element_by_class_name("fileNum")
 link.find_element_by_tag_name('a').click()
 
+while True:
+    if os.path.isfile(file_path): break
+    time.sleep(1)
 
 
-
-
-
-time.sleep(20) #ダウンロード終わらないうちに終わらないため。ここをなんとかしないといけん。
 
 driver.quit()
-sys.exit()
 
-
-'''
-docker run -d -p 4444:4444 -p 7900:7900 --shm-size="2g" selenium/standalone-chrome:4.1.3-20220405
-
-docker run -d -p 4444:4444 -p 7900:7900 -v C:/Users/user/Downloads:/home/seluser/Downloads --shm-size="2g" selenium/standalone-chrome:4.1.3-20220405
-
-'''
+#
+#
+#docker run -d -p 4444:4444 -p 7900:7900 --shm-size="2g" selenium/standalone-chrome:4.1.3-20220405
+#docker run -d -p 4444:4444 -p 7900:7900 -v C:/Users/user/Downloads:/home/seluser/Downloads --shm-size="2g" selenium/standalone-chrome:4.1.3-20220405
+#
+#
+#
