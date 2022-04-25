@@ -25,7 +25,7 @@ load_dotenv()
 login_id = os.environ['YLOGINID']
 login_password = os.environ['YPASSWORD']
 pro_url= os.environ['PRO_URL']
-
+detail_day_base_url = os.environ['DETAIL_DAY_BASE_URL']
 #options = webdriver.ChromeOptions()
 #driver = webdriver.Chrome(options=options)
 #driver = webdriver.Chrome(ChromeDriverManager().install())
@@ -61,7 +61,7 @@ trs = tb.find_all('tr')
 for tr in trs:
     tds = tr.find_all('td')
     if tds:
-        sime_date =  tds[0].text.strip()
+        sime_date =  tds[0].text.strip().replace('年','/').replace('月','/')
         recv_fee = re.sub(r'\D','',tds[1].text.strip())
         pay_fee = re.sub(r'\D','',tds[2].text.strip())
         kuri_fee = re.sub(r'\D','',tds[3].text.strip())
@@ -71,9 +71,30 @@ for tr in trs:
 
 print(use_list)
 
+detail_l = []
+for use in reversed(use_list):
+    day_key = re.sub(r'\D','',use[0])
+    sime_date = use[0]
+    url = f'{detail_day_base_url}/{day_key}'
+    print (day_key,url)
+    driver.get(url)
+    soup = bs4(driver.page_source,'html.parser')
 
-
-
-
+    tb = soup.find('table',class_='ycMdDataTbl')
+    trs = tb.find_all('tr')
+    for tr in trs:
+        tds = tr.find_all('td')
+        if tds:
+            if 'Date' in tds[0].attrs['class']:
+                use_date = tds[0].text.strip()
+                order_id = tds[1].text.strip()
+                pay_item = tds[2].text.strip()
+                pay_fee = re.sub(r'\D','',tds[3].text.strip())
+                recv_item = tds[4].text.strip()
+                recv_fee = re.sub(r'\D','',tds[5].text.strip())
+                detail_l.append([sime_date,use_date,order_id,pay_item,use_date,pay_fee,recv_item,recv_fee])
+                print(detail_l)
+    break
 
 driver.quit()
+print("Complete!!")
