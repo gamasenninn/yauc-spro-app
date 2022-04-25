@@ -13,6 +13,9 @@ from bs4 import BeautifulSoup as bs4
 #import re
 #import datetime
 from ypro_login import ypro_login
+import datetime
+import shutil
+
 
 load_dotenv()
 
@@ -22,6 +25,7 @@ pro_url= os.environ['PRO_URL']
 order_base_url = os.environ['ORDER_BASE_URL']
 download_dir = os.environ['DOWNLOAD_DIR']
 order_filename = os.environ['ORDER_FILENAME']
+data_dir =os.environ['DATA_DIR']
 
 options = webdriver.ChromeOptions()
 driver = webdriver.Remote(
@@ -51,6 +55,15 @@ link.find_element_by_tag_name('a').click()
 while True:
     if os.path.isfile(file_path): break
     time.sleep(1)
+
+#save to ./data
+save_filename = datetime.datetime.now().strftime('%y%m%d')+'_'+order_filename
+os.makedirs(data_dir,exist_ok=True)
+save_path = os.path.join(data_dir,save_filename)
+shutil.copy(file_path, save_path)
+
+print("file save OK!!")
+
 
 driver.quit()
 
