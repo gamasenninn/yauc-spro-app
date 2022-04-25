@@ -75,6 +75,5 @@ print(use_list)
 
 
 
-#time.sleep(30)
+
 driver.quit()
-sys.exit()
