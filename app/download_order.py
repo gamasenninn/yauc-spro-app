@@ -62,6 +62,8 @@ os.makedirs(data_dir,exist_ok=True)
 save_path = os.path.join(data_dir,save_filename)
 shutil.copy(file_path, save_path)
 
+print("file save OK!!")
+
 
 driver.quit()
 
