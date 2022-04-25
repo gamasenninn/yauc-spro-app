@@ -8,11 +8,10 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.action_chains import ActionChains
 from bs4 import BeautifulSoup as bs4
-import pandas as pd
-import sys
-import re
-import datetime
-#from webdriver_manager.chrome import ChromeDriverManager
+#import pandas as pd
+#import sys
+#import re
+#import datetime
 from ypro_login import ypro_login
 
 load_dotenv()
@@ -37,9 +36,6 @@ ypro_login(driver)
 url = f'{pro_url}/order/manage/index'
 driver.get(url)
 
-#from_day = driver.find_element_by_id("OrderTimeFromDayE")
-#from_day.send_keys("2022/03/09")
-
 btns = driver.find_elements_by_class_name("btnBlL")
 btns[1].find_element_by_tag_name('a').click()
 
@@ -55,8 +51,6 @@ link.find_element_by_tag_name('a').click()
 while True:
     if os.path.isfile(file_path): break
     time.sleep(1)
-
-
 
 driver.quit()
 
