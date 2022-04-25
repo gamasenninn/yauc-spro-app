@@ -21,6 +21,8 @@ login_id = os.environ['YLOGINID']
 login_password = os.environ['YPASSWORD']
 pro_url= os.environ['PRO_URL']
 order_base_url = os.environ['ORDER_BASE_URL']
+download_dir = os.environ['DOWNLOAD_DIR']
+order_filename = os.environ['ORDER_FILENAME']
 
 options = webdriver.ChromeOptions()
 driver = webdriver.Remote(
@@ -41,19 +43,27 @@ driver.get(url)
 btns = driver.find_elements_by_class_name("btnBlL")
 btns[1].find_element_by_tag_name('a').click()
 
+# remove down load file
+file_path = os.path.join(download_dir,order_filename)
+os.remove(file_path)
+
+# download
 WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.ID, 'ycWrContentsFix')))
 link = driver.find_element_by_class_name("fileNum")
 link.find_element_by_tag_name('a').click()
 
-time.sleep(20) #ダウンロード終わらないうちに終わらないため。ここをなんとかしないといけん。
+while True:
+    if os.path.isfile(file_path): break
+    time.sleep(1)
+
+
 
 driver.quit()
-sys.exit()
 
-
-'''
-docker run -d -p 4444:4444 -p 7900:7900 --shm-size="2g" selenium/standalone-chrome:4.1.3-20220405
-
-docker run -d -p 4444:4444 -p 7900:7900 -v C:/Users/user/Downloads:/home/seluser/Downloads --shm-size="2g" selenium/standalone-chrome:4.1.3-20220405
-
-'''
+#
+#
+#docker run -d -p 4444:4444 -p 7900:7900 --shm-size="2g" selenium/standalone-chrome:4.1.3-20220405
+#docker run -d -p 4444:4444 -p 7900:7900 -v C:/Users/user/Downloads:/home/seluser/Downloads --shm-size="2g" selenium/standalone-chrome:4.1.3-20220405
+#
+#
+#
