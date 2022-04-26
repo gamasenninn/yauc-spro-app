@@ -93,7 +93,7 @@ else:
 
 # ------ make detail list  ------
 detail_l = []
-for use in use_list:
+for use in reversed(use_list):
     day_key = re.sub(r'\D', '', use[0])
     close_date = use[0]
     status = use[6]
@@ -154,7 +154,7 @@ df = pd.DataFrame(detail_l,
 save_filename = datetime.datetime.now().strftime('%y%m%d')+'_'+"use_list.csv"
 os.makedirs(data_dir, exist_ok=True)
 save_path = os.path.join(data_dir, save_filename)
-df.to_csv(save_path)
+df.to_csv(save_path, encoding='cp932')
 
 driver.quit()
 print("Complete!!")
