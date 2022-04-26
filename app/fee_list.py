@@ -32,6 +32,9 @@ pro_url = os.environ['PRO_URL']
 detail_day_base_url = os.environ['DETAIL_DAY_BASE_URL']
 data_dir = os.environ['DATA_DIR']
 order_filename = os.environ['ORDER_FILENAME']
+fee_list_filename = os.environ['FEE_LIST_FILENAME']
+
+FEE_LIST='fee_list.csv'
 
 #options = webdriver.ChromeOptions()
 #driver = webdriver.Chrome(options=options)
@@ -151,7 +154,7 @@ df = pd.DataFrame(detail_l,
                       "scode",
                       "bill_name"
                   ])
-save_filename = datetime.datetime.now().strftime('%y%m%d')+'_'+"use_list.csv"
+save_filename = datetime.datetime.now().strftime('%y%m%d')+'_'+fee_list_filename
 os.makedirs(data_dir, exist_ok=True)
 save_path = os.path.join(data_dir, save_filename)
 df.to_csv(save_path, encoding='cp932')
