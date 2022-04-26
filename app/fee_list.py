@@ -72,7 +72,8 @@ for tr in trs:
         carry_fee = re.sub(r'\D','',tds[3].text.strip())
         amount_fee = re.sub(r'\D','',tds[4].text.strip())
         transfer = tds[5].text.strip()
-        use_list.append( [close_date,recv_fee,pay_fee,carry_fee,amount_fee,transfer])
+        status = tds[6].text.strip()
+        use_list.append( [close_date,recv_fee,pay_fee,carry_fee,amount_fee,transfer,status])
 
 print(use_list)
 
@@ -80,6 +81,7 @@ detail_l = []
 for use in use_list:
     day_key = re.sub(r'\D','',use[0])
     close_date = use[0]
+    status = use[6]
     url = f'{detail_day_base_url}/{day_key}'
     print (day_key,url)
     driver.get(url)
@@ -97,11 +99,11 @@ for use in use_list:
                 pay_fee = int(re.sub(r'\D','',tds[3].text.strip()) or 0)
                 recv_item = tds[4].text.strip()
                 recv_fee = int(re.sub(r'\D','',tds[5].text.strip()) or 0)
-                detail_l.append([close_date,use_date,order_id,pay_item,pay_fee,recv_item,recv_fee])
-                print(detail_l)
+                detail_l.append([close_date,status,use_date,order_id,pay_item,pay_fee,recv_item,recv_fee])
     #break
+print(detail_l)
 
-df = pd.DataFrame(detail_l,columns=["close_date","use_date","order_id","pay_item","pay_fee","recv_item","recv_fee"])
+df = pd.DataFrame(detail_l,columns=["close_date","status","use_date","order_id","pay_item","pay_fee","recv_item","recv_fee"])
 save_filename = datetime.datetime.now().strftime('%y%m%d')+'_'+"use_list.csv"
 os.makedirs(data_dir,exist_ok=True)
 save_path = os.path.join(data_dir,save_filename)
