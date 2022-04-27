@@ -131,3 +131,4 @@ dmypy.json
 close/
 *.db
 data/
+google-json/
