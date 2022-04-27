@@ -11,6 +11,7 @@ fee_list_filename = os.environ['FEE_LIST_FILENAME']
 db_name = os.environ['SQLITE_DB_NAME']
 gsp_json = os.environ['GSP_JSON']
 spreadsheet_key = os.environ['SPREADSHEET_KEY']
+sheet_name = os.environ['SHEET_NAME']
 fee_list_file_path = os.path.join(
     data_dir, datetime.datetime.now().strftime('%y%m%d')+'_'+fee_list_filename)
 
@@ -34,8 +35,8 @@ gc = gspread.authorize(credentials)
 
 #共有設定したスプレッドシートのシート1を開く
 workbook = gc.open_by_key(spreadsheet_key)
-worksheet = workbook.sheet1
-#worksheet = workbook.worksheet('名前でアクセス')
+#worksheet = workbook.sheet1
+worksheet = workbook.worksheet(sheet_name)
 
 #-----------------スプレッドシートへの書き込み---------------------
 
