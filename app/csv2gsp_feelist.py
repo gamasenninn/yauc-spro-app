@@ -2,6 +2,7 @@ import pandas as pd
 import os
 from dotenv import load_dotenv
 import datetime
+import gspread
 import gspread_dataframe as gs_df
 
 
@@ -40,7 +41,7 @@ worksheet = workbook.worksheet(sheet_name)
 
 #-----------------スプレッドシートへの書き込み---------------------
 
-gs_df.set_with_dataframe(worksheet,ss_df)
+gs_df.set_with_dataframe(worksheet,df)
 
 
 
