@@ -17,60 +17,71 @@ import datetime
 import shutil
 
 
-load_dotenv()
+def download_order(driver):
 
-login_id = os.environ['YLOGINID']
-login_password = os.environ['YPASSWORD']
-pro_url= os.environ['PRO_URL']
-order_base_url = os.environ['ORDER_BASE_URL']
-download_dir = os.environ['DOWNLOAD_DIR']
-order_filename = os.environ['ORDER_FILENAME']
-data_dir =os.environ['DATA_DIR']
+    pro_url = os.environ['PRO_URL']
+    download_dir = os.environ['DOWNLOAD_DIR']
+    order_filename = os.environ['ORDER_FILENAME']
+    data_dir = os.environ['DATA_DIR']
+    download_tinmeout = int(os.environ['DOWNLOAD_TIMEOUT'])
 
-options = webdriver.ChromeOptions()
-driver = webdriver.Remote(
-    command_executor='http://localhost:4444/wd/hub',
-    desired_capabilities=options.to_capabilities(),
-    options=options,
-)
-#-----login-------
-ypro_login(driver)
+    # -- jump search page  ---
+    url = f'{pro_url}/order/manage/index'
+    driver.get(url)
 
-#-- jump search page  ---
-url = f'{pro_url}/order/manage/index'
-driver.get(url)
+    btns = driver.find_elements_by_class_name("btnBlL")
+    btns[1].find_element_by_tag_name('a').click()
 
-btns = driver.find_elements_by_class_name("btnBlL")
-btns[1].find_element_by_tag_name('a').click()
+    # remove down load file
+    file_path = os.path.join(download_dir, order_filename)
+    os.remove(file_path)
 
-# remove down load file
-file_path = os.path.join(download_dir,order_filename)
-os.remove(file_path)
+    # download
+    WebDriverWait(driver, 5).until(
+        EC.presence_of_element_located((By.ID, 'ycWrContentsFix')))
+    link = driver.find_element_by_class_name("fileNum")
+    link.find_element_by_tag_name('a').click()
 
-# download
-WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.ID, 'ycWrContentsFix')))
-link = driver.find_element_by_class_name("fileNum")
-link.find_element_by_tag_name('a').click()
+    is_not_timeout = True
+    for i in range(download_tinmeout):
+        if os.path.isfile(file_path):
+            break
+        time.sleep(1)
+    else:
+        print("Time out wating for download...")
+        return False
 
-while True:
-    if os.path.isfile(file_path): break
-    time.sleep(1)
+    # save to ./data
+    save_filename = datetime.datetime.now().strftime('%y%m%d')+'_'+order_filename
+    os.makedirs(data_dir, exist_ok=True)
+    save_path = os.path.join(data_dir, save_filename)
+    shutil.copy(file_path, save_path)
 
-#save to ./data
-save_filename = datetime.datetime.now().strftime('%y%m%d')+'_'+order_filename
-os.makedirs(data_dir,exist_ok=True)
-save_path = os.path.join(data_dir,save_filename)
-shutil.copy(file_path, save_path)
-
-print("file save OK!!")
+    print("file save OK!!")
+    return True
 
 
-driver.quit()
+if __name__ == '__main__':
+
+    load_dotenv()
+    hub_url = os.environ['HUB_URL']
+
+    options = webdriver.ChromeOptions()
+    driver = webdriver.Remote(
+        command_executor=hub_url,
+        desired_capabilities=options.to_capabilities(),
+        options=options,
+    )
+
+    ypro_login(driver)
+    download_order(driver)
+
+    driver.quit()
 
 #
 #
-#docker run -d -p 4444:4444 -p 7900:7900 --shm-size="2g" selenium/standalone-chrome:4.1.3-20220405
-#docker run -d -p 4444:4444 -p 7900:7900 -v C:/Users/user/Downloads:/home/seluser/Downloads --shm-size="2g" selenium/standalone-chrome:4.1.3-20220405
+# docker run -d -p 4444:4444 -p 7900:7900 --shm-size="2g" selenium/standalone-chrome:4.1.3-20220405
+# docker run -d -p 4444:4444 -p 7900:7900 -v C:/Users/user/Downloads:/home/seluser/Downloads --shm-size="2g" selenium/standalone-chrome:4.1.3-20220405
 #
 #
 #
