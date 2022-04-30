@@ -132,3 +132,4 @@ close/
 *.db
 data/
 google-json/
+launch.json
