@@ -19,4 +19,5 @@ with Flow('DynamicFlow') as flow:
     squared_res = squared.map(l)
     sum_res = sum_up(squared_res)
 
-flow.run()
+#flow.run()
+flow.register(project_name="test")
