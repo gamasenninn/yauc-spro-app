@@ -91,12 +91,12 @@ with Flow("ystore-flow") as flow:
     end_task(driver)
     #download_order(driver)
 
-flow.register(project_name="test")
+#flow.register(project_name="test")
 
 if __name__ == '__main__':
 
 
-    #flow.run()
+    flow.run()
     pass
 #
 #
