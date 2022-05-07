@@ -9,16 +9,19 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.action_chains import ActionChains
 from bs4 import BeautifulSoup as bs4
 #import pandas as pd
-#import sys
+import sys
 #import re
 #import datetime
 from ypro_login import ypro_login
+from download_order import download_order
 import datetime
 import shutil
 import prefect
 from prefect import task, Flow
 
-@task
+#g_driver = ''
+
+
 def init_driver():
     load_dotenv()
     hub_url = os.environ['HUB_URL']
@@ -32,71 +35,41 @@ def init_driver():
     return driver
 
 @task
-def ylogin(driver):
+def task_ylogin():
     logger = prefect.context.get("logger")
+    driver = init_driver()
     ypro_login(driver)
     logger.info("ypro_login!")
 
-@task
-def download_order(driver):
-
-    pro_url = os.environ['PRO_URL']
-    download_dir = os.environ['DOWNLOAD_DIR']
-    order_filename = os.environ['ORDER_FILENAME']
-    data_dir = os.environ['DATA_DIR']
-    download_tinmeout = int(os.environ['DOWNLOAD_TIMEOUT'])
-
-    # -- jump search page  ---
-    url = f'{pro_url}/order/manage/index'
-    driver.get(url)
-
-    btns = driver.find_elements_by_class_name("btnBlL")
-    btns[1].find_element_by_tag_name('a').click()
-
-    # remove down load file
-    file_path = os.path.join(download_dir, order_filename)
-    os.remove(file_path)
-
-    # download
-    WebDriverWait(driver, 5).until(
-        EC.presence_of_element_located((By.ID, 'ycWrContentsFix')))
-    link = driver.find_element_by_class_name("fileNum")
-    link.find_element_by_tag_name('a').click()
-
-    is_not_timeout = True
-    for i in range(download_tinmeout):
-        if os.path.isfile(file_path):
-            break
-        time.sleep(1)
-    else:
-        print("Time out wating for download...")
-        return False
-
-    # save to ./data
-    save_filename = datetime.datetime.now().strftime('%y%m%d')+'_'+order_filename
-    os.makedirs(data_dir, exist_ok=True)
-    save_path = os.path.join(data_dir, save_filename)
-    shutil.copy(file_path, save_path)
-
-    print("file save OK!!")
-    return True
+    #download_order(driver)
+    return driver
 
 @task
-def end_task(driver):
+def task_download_order(driver):
+    download_order(driver)
+    return driver
+
+
+@task
+def task_end(driver):
     driver.quit()
 
 with Flow("ystore-flow") as flow:
-    driver = init_driver()
-    ylogin(driver)
-    end_task(driver)
-    #download_order(driver)
+    #init_driver()
+    driver1 = task_ylogin()
+    driver2 = task_download_order(driver1)
+    task_end(driver2)
 
-#flow.register(project_name="test")
 
 if __name__ == '__main__':
 
+    args = sys.argv
 
-    flow.run()
+    if len(args) >1 :
+        if args[1] == 'reg':
+            flow.register(project_name="test")
+    else:
+        flow.run()
     pass
 #
 #
