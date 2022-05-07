@@ -90,29 +90,30 @@ def fee_list(driver):
                 if 'Date' in tds[0].attrs['class']:
                     use_date = ex_date(tds[0].text)
                     order_id = tds[1].text.strip()
-                    pay_item = tds[2].text.strip()
-                    pay_fee = int(re.sub(r'\D', '', tds[3].text.strip()) or 0)
-                    recv_item = tds[4].text.strip()
-                    recv_fee = int(re.sub(r'\D', '', tds[5].text.strip()) or 0)
-                    row = df_order[df_order['Id'] == order_id]
-                    title = row.loc[:, 'Title'].iloc[-1].replace("L1=","")
-                    yauc_id = row.loc[:, 'YahooAuctionId'].iloc[-1]
-                    scode = row.loc[:, 'YahooAuctionMerchantId'].iloc[-1]
-                    bill_name = row.loc[:, 'BillName'].iloc[-1]
-                    detail_l.append([
-                        close_date,
-                        status,
-                        use_date,
-                        order_id,
-                        pay_item,
-                        pay_fee,
-                        recv_item,
-                        recv_fee,
-                        title,
-                        yauc_id,
-                        scode,
-                        bill_name
-                    ])
+                    if order_id:
+                        pay_item = tds[2].text.strip()
+                        pay_fee = int(re.sub(r'\D', '', tds[3].text.strip()) or 0)
+                        recv_item = tds[4].text.strip()
+                        recv_fee = int(re.sub(r'\D', '', tds[5].text.strip()) or 0)
+                        row = df_order[df_order['Id'] == order_id]
+                        title = row.loc[:, 'Title'].iloc[-1].replace("L1=","")
+                        yauc_id = row.loc[:, 'YahooAuctionId'].iloc[-1]
+                        scode = row.loc[:, 'YahooAuctionMerchantId'].iloc[-1]
+                        bill_name = row.loc[:, 'BillName'].iloc[-1]
+                        detail_l.append([
+                            close_date,
+                            status,
+                            use_date,
+                            order_id,
+                            pay_item,
+                            pay_fee,
+                            recv_item,
+                            recv_fee,
+                            title,
+                            yauc_id,
+                            scode,
+                            bill_name
+                        ])
         # break
     #print(detail_l)
 
