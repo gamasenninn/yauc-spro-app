@@ -13,16 +13,24 @@ from bs4 import BeautifulSoup as bs4
 import sys
 #import re
 #import datetime
+import datetime
+import shutil
+import prefect
+from prefect import task, Flow
+from prefect.run_configs import LocalRun
+
+dir_name = os.path.dirname(os.path.abspath(__file__))
+#print("dir_name:",dir_name)
+
+#sys.path.append(dir_name)
 from ypro_login import ypro_login
 from download_order import download_order
 from fee_list import fee_list
 from csv2db_order import csv2db_order
 from csv2db_feelist import csv2db_feelist
 from csv2gsp_feelist import csv2gsp_feelist
-import datetime
-import shutil
-import prefect
-from prefect import task, Flow
+
+#os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 #g_driver = ''
 
@@ -41,6 +49,7 @@ def init_driver():
 
 @task
 def task_ylogin():
+
     logger = prefect.context.get("logger")
     driver = init_driver()
     ypro_login(driver)
@@ -73,11 +82,12 @@ def task_transport(e):
 @task
 def task_load(t):
     csv2gsp_feelist()
+    pass
     return True
 
 
 
-with Flow("ystore-flow") as flow:
+with Flow("ystore-flow",run_config=LocalRun(working_dir=dir_name)) as flow:
     #init_driver()
     driver1 = task_ylogin()
     driver2 = task_download_order(driver1)
@@ -90,6 +100,11 @@ if __name__ == '__main__':
 
     args = sys.argv
 
+    dir_name = os.path.dirname(os.path.abspath(__file__))
+    print(dir_name)
+
+
+    #flow.run_config = LocalRun(working_dir=dir_name)
     if len(args) >1 :
         if args[1] == 'reg':
             flow.register(project_name="test")
