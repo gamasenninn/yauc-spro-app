@@ -48,7 +48,7 @@ def init_driver():
     return driver
 
 @task
-def task_ylogin():
+def t_ylogin():
 
     logger = prefect.context.get("logger")
     driver = init_driver()
@@ -59,42 +59,53 @@ def task_ylogin():
     return driver
 
 @task
-def task_download_order(driver):
+def t_download_order(driver):
     download_order(driver)
     return driver
 
 @task
-def task_fee_list(driver):
+def t_fee_list(driver):
     fee_list(driver)
     return driver
 
 @task
-def task_driver_end(driver):
+def t_driver_end(driver):
     driver.quit()
     return True
 
 @task
-def task_transport(e):
+def t_tran_order(e):
     csv2db_order()
+    return True
+
+@task
+def t_tran_feelist(e):
     csv2db_feelist()
     return True
 
 @task
-def task_load(t):
+def t_load_feelst(t):
     csv2gsp_feelist()
     pass
     return True
 
+@task
+def t_final(t):
+    print('Task all end....!')
+    pass
+    return True
 
 
 with Flow("ystore-flow",run_config=LocalRun(working_dir=dir_name)) as flow:
     #init_driver()
-    driver1 = task_ylogin()
-    driver2 = task_download_order(driver1)
-    driver3 = task_fee_list(driver2)
-    extract_end = task_driver_end(driver3)
-    transport_end = task_transport(extract_end)
-    load_end = task_load(transport_end)
+    driver1 = t_ylogin()
+    driver2 = t_download_order(driver1)
+    tran_end_1 = t_tran_order(driver2)
+    driver3 = t_fee_list(driver2)
+    ext_end = t_driver_end(driver3)
+    tran_end_2 = t_tran_feelist(driver3)
+    load_end = t_load_feelst(driver3)
+    final = t_final([tran_end_1,tran_end_2,load_end])
 
 if __name__ == '__main__':
 
