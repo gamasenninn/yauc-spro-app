@@ -69,7 +69,7 @@ def exbt_list(driver):
                 exbt_list.append([scode,auc_id,title,start_price,bid_price,
                                 pv, bid, watch, close_count])
 
-    print(exbt_list)
+    #print(exbt_list)
 
     df = pd.DataFrame(exbt_list,
                     columns=[
