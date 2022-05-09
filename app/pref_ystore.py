@@ -29,7 +29,7 @@ from fee_list import fee_list
 from csv2db_order import csv2db_order
 from csv2db_feelist import csv2db_feelist
 from csv2gsp_feelist import csv2gsp_feelist
-
+from exbt_list import exbt_list
 #os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 #g_driver = ''
@@ -67,6 +67,10 @@ def t_download_order(driver):
 def t_fee_list(driver):
     fee_list(driver)
     return driver
+@task
+def t_exbt_list(driver):
+    exbt_list(driver)
+    return driver
 
 @task
 def t_driver_end(driver):
@@ -102,10 +106,11 @@ with Flow("ystore-flow",run_config=LocalRun(working_dir=dir_name)) as flow:
     driver2 = t_download_order(driver1)
     tran_end_1 = t_tran_order(driver2)
     driver3 = t_fee_list(driver2)
-    ext_end = t_driver_end(driver3)
+    driver4 = t_exbt_list(driver3)
+    ext_end = t_driver_end(driver4)
     tran_end_2 = t_tran_feelist(driver3)
     load_end = t_load_feelst(driver3)
-    final = t_final([tran_end_1,tran_end_2,load_end])
+    final = t_final([tran_end_1,tran_end_2,load_end,ext_end])
 
 if __name__ == '__main__':
 
