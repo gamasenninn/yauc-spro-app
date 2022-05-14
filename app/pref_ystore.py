@@ -29,6 +29,7 @@ from fee_list import fee_list
 from csv2db_order import csv2db_order
 from csv2db_feelist import csv2db_feelist
 from csv2gsp_feelist import csv2gsp_feelist
+from csv2gsp_order import csv2gsp_order
 from exbt_list import exbt_list
 #os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -90,7 +91,7 @@ def t_tran_feelist(e):
 @task
 def t_load_feelst(t):
     csv2gsp_feelist()
-    pass
+    csv2gsp_order()
     return True
 
 @task
