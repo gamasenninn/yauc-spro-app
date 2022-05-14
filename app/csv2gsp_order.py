@@ -1,0 +1,51 @@
+import pandas as pd
+import os
+from dotenv import load_dotenv
+import datetime
+import gspread
+import gspread_dataframe as gs_df
+
+def csv2gsp_order():
+    load_dotenv()
+    data_dir = os.environ['DATA_DIR']
+    order_filename = os.environ['ORDER_FILENAME']
+    db_name = os.environ['SQLITE_DB_NAME']
+    gsp_json = os.environ['GSP_JSON']
+    spreadsheet_key = os.environ['GSHEET_KEY_CILENT']
+    sheet_name = os.environ['SHNAME_ORDER']
+    order_file_path = os.path.join(
+        data_dir, datetime.datetime.now().strftime('%y%m%d')+'_'+order_filename)
+
+    df = pd.read_csv(order_file_path, encoding='cp932')
+
+
+    #-----------------Googleスプレッドシートの事前設定 ---------------------
+
+    #ServiceAccountCredentials：Googleの各サービスへアクセスできるservice変数を生成します。
+    from oauth2client.service_account import ServiceAccountCredentials
+    scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
+
+    #認証情報設定
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(gsp_json, scope)
+
+    #OAuth2の資格情報を使用してGoogle APIにログインします。
+    gc = gspread.authorize(credentials)
+
+    #----------------- シートの設定 ---------------------
+
+    #共有設定したスプレッドシートのシート1を開く
+    workbook = gc.open_by_key(spreadsheet_key)
+    #worksheet = workbook.sheet1
+    worksheet = workbook.worksheet(sheet_name)
+
+    #-----------------スプレッドシートへの書き込み---------------------
+
+    gs_df.set_with_dataframe(worksheet,df)
+
+if __name__ == '__main__':
+    dir_name = os.path.dirname(os.path.abspath(__file__))
+    print(dir_name)
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+    csv2gsp_order()
+    print("updated G spread shhet!")
