@@ -5,6 +5,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.action_chains import ActionChains
 from bs4 import BeautifulSoup as bs4
@@ -29,12 +30,17 @@ def download_order(driver):
     url = f'{pro_url}/order/manage/index'
     driver.get(url)
 
+    start_day = driver.find_element_by_id("OrderTimeFromDayE")
+    start_day.send_keys(Keys.CONTROL+ "a")
+    start_day.send_keys("2022/03/01")
+
     btns = driver.find_elements_by_class_name("btnBlL")
     btns[1].find_element_by_tag_name('a').click()
 
     # remove down load file
     file_path = os.path.join(download_dir, order_filename)
-    os.remove(file_path)
+    if os.path.exists(file_path):
+        os.remove(file_path)
 
     # download
     WebDriverWait(driver, 5).until(
