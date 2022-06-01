@@ -15,6 +15,8 @@ def csv2gsp_order():
     sheet_name = os.environ['SHNAME_ORDER']
     order_file_path = os.path.join(
         data_dir, datetime.datetime.now().strftime('%y%m%d')+'_'+order_filename)
+    if not os.path.isfile(order_file_path):
+        return False
 
     df = pd.read_csv(order_file_path, encoding='cp932')
 
@@ -42,10 +44,14 @@ def csv2gsp_order():
 
     gs_df.set_with_dataframe(worksheet,df)
 
+    return True
+
 if __name__ == '__main__':
     dir_name = os.path.dirname(os.path.abspath(__file__))
     print(dir_name)
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-    csv2gsp_order()
-    print("updated G spread shhet!")
+    if csv2gsp_order():
+        print("updated G spread shhet!")
+    else:
+        print("Ignored")
