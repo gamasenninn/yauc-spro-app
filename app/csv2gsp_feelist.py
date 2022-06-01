@@ -16,6 +16,9 @@ def csv2gsp_feelist():
     fee_list_file_path = os.path.join(
         data_dir, datetime.datetime.now().strftime('%y%m%d')+'_'+fee_list_filename)
 
+    if not os.path.isfile(fee_list_file_path):
+        return False
+
     df = pd.read_csv(fee_list_file_path, encoding='cp932')
 
 
@@ -41,11 +44,14 @@ def csv2gsp_feelist():
     #-----------------スプレッドシートへの書き込み---------------------
 
     gs_df.set_with_dataframe(worksheet,df)
+    return True
 
 if __name__ == '__main__':
     dir_name = os.path.dirname(os.path.abspath(__file__))
     print(dir_name)
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-    csv2gsp_feelist()
-    print("updated G spread shhet!")
+    if csv2gsp_feelist():
+        print("updated G spread shhet!")
+    else:
+        print("Ignored")
