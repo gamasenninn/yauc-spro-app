@@ -44,6 +44,8 @@ def fee_list(driver):
     # ---- use condition
     use_list = []
     tb = soup.find('table', class_='ycMdItemInfoHorInv')
+    if not tb:
+        return
     trs = tb.find_all('tr')
     for tr in trs:
         tds = tr.find_all('td')
