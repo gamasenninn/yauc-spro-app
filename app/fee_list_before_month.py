@@ -14,6 +14,7 @@ import pandas as pd
 import sys
 import re
 import datetime
+from dateutil.relativedelta import relativedelta
 #import gspread
 #import gspread_dataframe as gs_df
 from webdriver_manager.chrome import ChromeDriverManager
@@ -23,7 +24,7 @@ from ypro_login import ypro_login
 def ex_date(date_text):
     return date_text.strip().replace('年', '/').replace('月', '/').replace('日', '')
 
-def fee_list(driver):
+def fee_list_before_montth(driver):
 
     pro_url = os.environ['PRO_URL']
     detail_day_base_url = os.environ['DETAIL_DAY_BASE_URL']
@@ -32,7 +33,10 @@ def fee_list(driver):
     fee_list_filename = os.environ['FEE_LIST_FILENAME']
 
     # -- amount list---
-    driver.get(pro_url+'/amount/clearing')
+    today = datetime.datetime.today()
+    one_month_before = today - relativedelta(months=1)
+    targetYm = f'{one_month_before.year}{one_month_before.month:02}'
+    driver.get(pro_url+f'/amount/clearing?targetYm={targetYm}')
     soup = bs4(driver.page_source, 'html.parser')
 
     #---- recieve & payment
@@ -79,12 +83,12 @@ def fee_list(driver):
         day_key = re.sub(r'\D', '', use[0])
         close_date = use[0]
         status = use[6]
-        url = f'{detail_day_base_url}/{day_key}'
+        url = f'{detail_day_base_url}/{day_key}?targetYm={targetYm}'
         print(day_key, url)
         driver.get(url)
         while True:
             soup = bs4(driver.page_source, 'html.parser')
-
+          
             tb = soup.find('table', class_='ycMdDataTbl')
             trs = tb.find_all('tr')
             for tr in trs:
@@ -121,7 +125,6 @@ def fee_list(driver):
                 driver.find_element_by_css_selector('a.next').click()
             except:
                 break
-
     #print(detail_l)
 
     df = pd.DataFrame(detail_l,
@@ -139,7 +142,8 @@ def fee_list(driver):
                         "scode",
                         "bill_name"
                     ])
-    save_filename = datetime.datetime.now().strftime('%y%m%d')+'_'+fee_list_filename
+    #save_filename = datetime.datetime.now().strftime('%y%m%d')+'_'+fee_list_filename
+    save_filename = f'_{targetYm}_'+fee_list_filename
     os.makedirs(data_dir, exist_ok=True)
     save_path = os.path.join(data_dir, save_filename)
     df.to_csv(save_path, encoding='cp932')
@@ -159,7 +163,7 @@ if __name__ == '__main__':
     )
 
     ypro_login(driver)
-    fee_list(driver)
+    fee_list_before_montth(driver)
 
     driver.quit()
     print("Complete!!")
