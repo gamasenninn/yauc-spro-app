@@ -20,6 +20,7 @@ with paramiko.SSHClient() as ssh:
 
     # コマンド実行
     stdin, stdout, stderr = ssh.exec_command('ls -al')
+    stdin, stdout, stderr = ssh.exec_command('ls -al web/close')
 
     # コマンド実行後に標準入力が必要な場合
     # stdin.write('password\n')
