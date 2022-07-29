@@ -61,7 +61,11 @@ def exbt_list(driver):
                 auc_id = tul.find('p',class_="Table__auctionId").text.replace('オークションID','').strip()
                 scode = tul.find('p',class_="Table__manageId").text.replace('管理番号','').strip()
                 start_price = re.sub(r'\D','',tul.find('p',class_="Table__startPrice").text.strip())
-                bid_price = re.sub(r'\D','',tul.find('p',class_="Table__bidPrice").text.strip())
+                try:
+                    bid_price = re.sub(r'\D','',tul.find('p',class_="Table__bidPrice").text.strip())
+                except:
+                    bid_price =0
+
                 pv = re.sub(r'\D','',tul.find('li',class_="Table__pv").text.strip())
                 bid = re.sub(r'\D','',tul.find('li',class_="Table__bid").text.strip())
                 watch = re.sub(r'\D','',tul.find('li',class_="Table__watch").text.strip())
