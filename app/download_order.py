@@ -71,6 +71,8 @@ if __name__ == '__main__':
 
     load_dotenv()
     hub_url = os.environ['HUB_URL']
+    download_dir = os.environ['DOWNLOAD_DIR']
+
 
     options = webdriver.ChromeOptions()
     driver = webdriver.Remote(
