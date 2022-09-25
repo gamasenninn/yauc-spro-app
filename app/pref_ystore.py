@@ -107,7 +107,7 @@ with Flow("ystore-flow",run_config=LocalRun(working_dir=dir_name)) as flow:
     driver2 = t_download_order(driver1)
     tran_end_1 = t_tran_order(driver2)
     driver3 = t_fee_list(driver2)
-    driver4 = t_exbt_list(driver3)
+    driver4 = t_exbt_list(driver1)
     ext_end = t_driver_end(driver4)
     tran_end_2 = t_tran_feelist(driver3)
     load_end = t_load_feelst(driver3)
