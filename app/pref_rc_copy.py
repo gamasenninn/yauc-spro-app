@@ -20,7 +20,7 @@ def get_lines(cmd):
     proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     while True:
-        line = proc.stdout.readline().decode('cp932')
+        line = proc.stdout.readline().decode('utf-8')
         if line:
             yield line
 
