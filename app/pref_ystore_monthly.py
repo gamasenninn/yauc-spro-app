@@ -66,9 +66,9 @@ def t_trans_feelist_bm(driver):
 
 
 @task
-def t_final(t):
+def t_final(driver):
     print('Task all end....!')
-    pass
+    driver.quit()
     return True
 
 
@@ -76,8 +76,8 @@ with Flow("ystore-monthly",run_config=LocalRun(working_dir=dir_name)) as flow:
     #init_driver()
     driver1 = t_ylogin()
     driver2 = t_load_feelist_bm(driver1)
-    tran_end_1 = t_trans_feelist_bm(driver2)
-    final = t_final(tran_end_1)
+    driver3  = t_trans_feelist_bm(driver2)
+    final = t_final(driver3)
 
 if __name__ == '__main__':
 
