@@ -18,7 +18,10 @@ import datetime
 #import gspread_dataframe as gs_df
 from webdriver_manager.chrome import ChromeDriverManager
 from ypro_login import ypro_login
+from lxml import html
 
+
+LXS = []
 
 def ex_date(date_text):
     return date_text.strip().replace('年', '/').replace('月', '/').replace('日', '')
@@ -35,11 +38,18 @@ def exbt_list(driver):
 
     # -- exhbit lisr URL---
     driver.get(exbt_url)
+    driver.implicitly_wait(20)
+    driver.find_element_by_xpath('//*[@id="__next"]/div[1]/div/main/div/div/div[3]/section/div/div[4]/div/div[1]/div/p[1]')
     soup = bs4(driver.page_source, 'html.parser')
+    lx = html.fromstring(str(soup))
+    global LXS
+    LXS.append(lx)
 
-    #---- recieve & payment
-    total = soup.find('span', class_='PageIndicator__total')
-    itemCount = int(re.sub(r'\D', '', total.text))
+    #---- recieve & payment  sc-cMljjf kSOPKl
+    #total = soup.find('span', class_='PageIndicator__total')
+    #total = soup.find('p', class_='sc-cMljjf kSOPKl')
+    total = lx.xpath('//*[@id="__next"]/div[1]/div/main/div/div/div[3]/section/div/div[4]/div/div[1]/div/p[1]')[0].text
+    itemCount = int(re.sub(r'\D', '', total))
 
     page_max = int(itemCount/100 + 0.999999999)
     print('page_max:',page_max )
@@ -47,31 +57,61 @@ def exbt_list(driver):
 
     # ---- use condition
     exbt_list = []
+    all_count = 0
     for page in range(1,page_max+1):
         if page > 1 :
             driver.get(f'{exbt_url}?page={page}')
+            driver.find_element_by_xpath('//*[@id="__next"]/div[1]/div/main/div/div/div[3]/section/div/div[5]/div/div/ul')
             soup = bs4(driver.page_source, 'html.parser')
+            lx = html.fromstring(str(soup))
+            LXS.append(lx)
+            
 
-        tb = soup.find('div', class_='Table__body')
-        tuls = tb.find_all('ul',class_='Table__line')
+        #tb = soup.find('div', class_='Table__body')
+        #tuls = tb.find_all('ul',class_='Table__line')
+        tuls = lx.xpath('//*[@id="__next"]/div[1]/div/main/div/div/div[3]/section/div/div[5]/div/div/ul')
+
+        tul_count = 0
         for tul in tuls:
-            tlis = tul.find_all('li')
-            if tlis:
-                title = tul.find('p',class_="Table__title").text.strip()
-                auc_id = tul.find('p',class_="Table__auctionId").text.replace('オークションID','').strip()
-                scode = tul.find('p',class_="Table__manageId").text.replace('管理番号','').strip()
-                start_price = re.sub(r'\D','',tul.find('p',class_="Table__startPrice").text.strip())
-                try:
-                    bid_price = re.sub(r'\D','',tul.find('p',class_="Table__bidPrice").text.strip())
-                except:
-                    bid_price =0
+            if tul_count == 0:
+                tul_count += 1
+                continue
 
-                pv = re.sub(r'\D','',tul.find('li',class_="Table__pv").text.strip())
-                bid = re.sub(r'\D','',tul.find('li',class_="Table__bid").text.strip())
-                watch = re.sub(r'\D','',tul.find('li',class_="Table__watch").text.strip())
-                close_count = re.sub(r'\D','',tul.find('li',class_="Table__closeTime").text.strip())
-                exbt_list.append([scode,auc_id,title,start_price,bid_price,
+            title = tul.xpath('./li[2]/div/div/p[1]/a')[0].text
+            auc_id = tul.xpath('./li[2]/div/div/p[2]')[0].text.replace('オークションID','').strip()
+            scode = tul.xpath('./li[2]/div/div/p[3]')[0].text.replace('管理番号','').strip()
+            tx_prices = tul.xpath('./li[4]/div/div/p/text()')
+            start_price = re.sub(r'\D','',tx_prices[0].strip())
+            try:
+                bid_price = re.sub(r'\D','',tx_prices[1].strip())
+            except:
+                bid_price = 0
+            pv = re.sub(r'\D','',tul.xpath('./li[6]/div')[0].text.strip())
+            bid = re.sub(r'\D','',tul.xpath('./li[7]/div')[0].text.strip())
+            watch = re.sub(r'\D','',tul.xpath('./li[8]/div')[0].text.strip())
+            close_count = re.sub(r'\D','',tul.xpath('./li[9]/div')[0].text.strip())
+            #print(all_count,auc_id,scode,title,start_price,bid_price,pv,bid,watch,close_count)
+            exbt_list.append([scode,auc_id,title,start_price,bid_price,
                                 pv, bid, watch, close_count])
+            
+            #tlis = tul.find_all('li')
+            #if tlis:
+            #    -title = tul.find('p',class_="Table__title").text.strip()
+            #    -auc_id = tul.find('p',class_="Table__auctionId").text.replace('オークションID','').strip()
+            #    -scode = tul.find('p',class_="Table__manageId").text.replace('管理番号','').strip()
+            #    start_price = re.sub(r'\D','',tul.find('p',class_="Table__startPrice").text.strip())
+            #    try:
+            #        bid_price = re.sub(r'\D','',tul.find('p',class_="Table__bidPrice").text.strip())
+            #    except:
+            #        bid_price =0
+            #
+            #    pv = re.sub(r'\D','',tul.find('li',class_="Table__pv").text.strip())
+            #    bid = re.sub(r'\D','',tul.find('li',class_="Table__bid").text.strip())
+            #    watch = re.sub(r'\D','',tul.find('li',class_="Table__watch").text.strip())
+            #    close_count = re.sub(r'\D','',tul.find('li',class_="Table__closeTime").text.strip())
+
+            tul_count += 1
+            all_count += 1
 
     #print(exbt_list)
 
@@ -84,6 +124,7 @@ def exbt_list(driver):
     os.makedirs(data_dir, exist_ok=True)
     save_path = os.path.join(data_dir, save_filename)
     df.to_csv(save_path, encoding='cp932')
+    print("Data saved:",all_count)
 
     return
 
