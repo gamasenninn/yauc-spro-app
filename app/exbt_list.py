@@ -23,6 +23,11 @@ from lxml import html
 
 LXS = []
 
+expect_path = '//*[@id="__next"]/div[1]/div/main/div/div/div[3]/section/div/div[3]/div/div[1]/div/p[1]'
+
+ul_path = '//*[@id="__next"]/div[1]/div/main/div/div/div[3]/section/div/div[4]/div/div/ul'
+
+
 def ex_date(date_text):
     return date_text.strip().replace('年', '/').replace('月', '/').replace('日', '')
 
@@ -38,8 +43,9 @@ def exbt_list(driver):
 
     # -- exhbit lisr URL---
     driver.get(exbt_url)
-    driver.implicitly_wait(20)
-    driver.find_element_by_xpath('//*[@id="__next"]/div[1]/div/main/div/div/div[3]/section/div/div[4]/div/div[1]/div/p[1]')
+    driver.implicitly_wait(30)
+    #driver.find_element_by_xpath('//*[@id="__next"]/div[1]/div/main/div/div/div[3]/section/div/div[4]/div/div[1]/div/p[1]')
+    driver.find_element_by_xpath(expect_path)
     soup = bs4(driver.page_source, 'html.parser')
     lx = html.fromstring(str(soup))
     global LXS
@@ -48,7 +54,8 @@ def exbt_list(driver):
     #---- recieve & payment  sc-cMljjf kSOPKl
     #total = soup.find('span', class_='PageIndicator__total')
     #total = soup.find('p', class_='sc-cMljjf kSOPKl')
-    total = lx.xpath('//*[@id="__next"]/div[1]/div/main/div/div/div[3]/section/div/div[4]/div/div[1]/div/p[1]')[0].text
+    #total = lx.xpath('//*[@id="__next"]/div[1]/div/main/div/div/div[3]/section/div/div[4]/div/div[1]/div/p[1]')[0].text
+    total = lx.xpath(expect_path)[0].text
     itemCount = int(re.sub(r'\D', '', total))
 
     page_max = int(itemCount/100 + 0.999999999)
@@ -61,7 +68,8 @@ def exbt_list(driver):
     for page in range(1,page_max+1):
         if page > 1 :
             driver.get(f'{exbt_url}?page={page}')
-            driver.find_element_by_xpath('//*[@id="__next"]/div[1]/div/main/div/div/div[3]/section/div/div[5]/div/div/ul')
+            #driver.find_element_by_xpath('//*[@id="__next"]/div[1]/div/main/div/div/div[3]/section/div/div[5]/div/div/ul')
+            driver.find_element_by_xpath(ul_path)
             soup = bs4(driver.page_source, 'html.parser')
             lx = html.fromstring(str(soup))
             LXS.append(lx)
@@ -69,7 +77,8 @@ def exbt_list(driver):
 
         #tb = soup.find('div', class_='Table__body')
         #tuls = tb.find_all('ul',class_='Table__line')
-        tuls = lx.xpath('//*[@id="__next"]/div[1]/div/main/div/div/div[3]/section/div/div[5]/div/div/ul')
+        #tuls = lx.xpath('//*[@id="__next"]/div[1]/div/main/div/div/div[3]/section/div/div[5]/div/div/ul')
+        tuls = lx.xpath(ul_path)
 
         tul_count = 0
         for tul in tuls:
@@ -117,13 +126,19 @@ if __name__ == '__main__':
 
     load_dotenv()
     hub_url = os.environ['HUB_URL']
+    dmode = "local" # "remote"
+    
 
     options = webdriver.ChromeOptions()
-    driver = webdriver.Remote(
-        command_executor=hub_url,
-        desired_capabilities=options.to_capabilities(),
-        options=options,
-    )
+    if dmode == "remote":
+        driver = webdriver.Remote(
+            command_executor=hub_url,
+            desired_capabilities=options.to_capabilities(),
+            options=options,
+        )
+    else:
+        driver = webdriver.Chrome(ChromeDriverManager().install(),options=options)
+        
 
     ypro_login(driver)
     exbt_list(driver)
