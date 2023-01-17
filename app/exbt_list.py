@@ -27,7 +27,6 @@ expect_path = '//*[@id="__next"]/div[1]/div/main/div/div/div[3]/section/div/div[
 
 ul_path = '//*[@id="__next"]/div[1]/div/main/div/div/div[3]/section/div/div[4]/div/div/ul'
 
-
 def ex_date(date_text):
     return date_text.strip().replace('年', '/').replace('月', '/').replace('日', '')
 
@@ -85,20 +84,19 @@ def exbt_list(driver):
             if tul_count == 0:
                 tul_count += 1
                 continue
-
-            title = tul.xpath('./li[2]/div/div/p[1]/a')[0].text
-            auc_id = tul.xpath('./li[2]/div/div/p[2]')[0].text.replace('オークションID','').strip()
-            scode = tul.xpath('./li[2]/div/div/p[3]')[0].text.replace('管理番号','').strip()
-            tx_prices = tul.xpath('./li[4]/div/div/p/text()')
+            title = tul.xpath('./li[3]/div/div/p[1]/a')[0].text
+            auc_id = tul.xpath('./li[3]/div/div/p[2]')[0].text.replace('オークションID','').strip()
+            scode = tul.xpath('./li[3]/div/div/p[3]')[0].text.replace('管理番号','').strip()
+            tx_prices = tul.xpath('./li[5]/div/div/p/text()')
             start_price = re.sub(r'\D','',tx_prices[0].strip())
             try:
                 bid_price = re.sub(r'\D','',tx_prices[1].strip())
             except:
                 bid_price = 0
-            pv = re.sub(r'\D','',tul.xpath('./li[6]/div')[0].text.strip())
-            bid = re.sub(r'\D','',tul.xpath('./li[7]/div')[0].text.strip())
-            watch = re.sub(r'\D','',tul.xpath('./li[8]/div')[0].text.strip())
-            close_count = re.sub(r'\D','',tul.xpath('./li[9]/div')[0].text.strip())
+            pv = re.sub(r'\D','',tul.xpath('./li[7]/div')[0].text.strip())
+            bid = re.sub(r'\D','',tul.xpath('./li[8]/div')[0].text.strip())
+            watch = re.sub(r'\D','',tul.xpath('./li[9]/div')[0].text.strip())
+            close_count = re.sub(r'\D','',tul.xpath('./li[10]/div')[0].text.strip())
             #print(all_count,auc_id,scode,title,start_price,bid_price,pv,bid,watch,close_count)
             exbt_list.append([scode,auc_id,title,start_price,bid_price,
                                 pv, bid, watch, close_count])
