@@ -22,14 +22,14 @@ def ypro_login(driver):
     try:
         driver.get(pro_url)
         WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.ID, 'username')))
-        search_box = driver.find_element_by_id("username")
+        search_box = driver.find_element(By.ID,"username")
         search_box.send_keys(login_id)
-        driver.find_element_by_id("btnNext").click()
+        driver.find_element(By.ID,"btnNext").click()
         time.sleep(1) #なぜかしら必要。waitのタイミング？
         WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.ID, 'passwd')))
-        search_box = driver.find_element_by_id("passwd")
+        search_box = driver.find_element(By.ID,"passwd")
         search_box.send_keys(login_password)
-        driver.find_element_by_id("btnSubmit").click()
+        driver.find_element(By.ID,"btnSubmit").click()
         print("OK log in!")
     except Exception as e:
         print(e)
