@@ -15,9 +15,6 @@ from lxml import html
 from sqlalchemy import create_engine
 
 TMP_PATH = "S:/プログラム関連/直接.txt"
-#DB_URL = "mysql://hikousen:rs151000@hksagri/hksdb?charset=utf8"
-SQL_STR = "select * from 出品商品管理票 where 仕切書No = '{:}' order by 管理番号 desc limit 10"
-DB_URL = f'mysql+mysqlconnector://hikousen:rs151000@hksagri/hksdb'
 
 
 LXS = []
@@ -40,7 +37,6 @@ def set_value(driver,xpath,value):
 
 
 def re_exbt(driver,aucid,dict):
-
     exbt_url = os.environ['RE_EXBT_URL']
 
     # -- exhbit lisr URL---
@@ -96,6 +92,9 @@ def re_exbt(driver,aucid,dict):
     return
 
 def get_target_data(scode):
+
+    DB_URL = os.environ['DB_URL']
+    SQL_STR = "select * from 出品商品管理票 where 仕切書No = '{:}' order by 管理番号 desc limit 10"
 
     engine = create_engine(DB_URL, echo=False)
     df = pd.read_sql(sql=SQL_STR.format(scode),  con=engine)
