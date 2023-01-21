@@ -146,13 +146,15 @@ if __name__ == '__main__':
     dmode = "local" # "remote"
     is_test = False
 
-    if len(sys.argv) > 0 :
+    if len(sys.argv) > 1 :
         aucid=sys.argv[1]
+    else:
+        print("パラメータエラー: IDを入力してください")
+        sys.exit(0)
 
     if is_test:
-        aucid  = "s1064874767"
         dict = get_target_data(aucid)       
-        sys.exit()
+        sys.exit(0)
 
         
     dict = get_target_data(aucid)
