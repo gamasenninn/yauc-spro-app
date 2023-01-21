@@ -26,15 +26,15 @@ def ypro_login(driver):
     print("try login.....")
     try:
         driver.get(pro_url)
-        WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.ID, 'username')))
-        time.sleep(1) #なぜかしら必要。waitのタイミング？
+        time.sleep(2) #なぜかしら必要。waitのタイミング？
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'username')))
         search_box = driver.find_element(By.ID,"username")
         search_box.clear()
         search_box.send_keys(login_id)
         #driver.execute_script(f"arguments[0] = arguments[1];", search_box,login_id)        
         driver.find_element(By.ID,"btnNext").click()
         time.sleep(1) #なぜかしら必要。waitのタイミング？
-        WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.ID, 'passwd')))
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'passwd')))
         search_box = driver.find_element(By.ID,"passwd")
         search_box.send_keys(login_password)
         #driver.execute_script(f"arguments[0] = arguments[1];", search_box,login_password)        
@@ -94,4 +94,13 @@ if __name__ == '__main__':
     else:
         driver = webdriver.Chrome(ChromeDriverManager().install(),options=options)
 
-    ypro_login(driver)
+    try:
+        ypro_login(driver)
+        input("なにかキーをおしてください")
+    except Exception as e:
+        print("error")
+        print(e)
+    finally:
+        print("終了処理中")
+        driver.quit()
+        print("終了しました。")

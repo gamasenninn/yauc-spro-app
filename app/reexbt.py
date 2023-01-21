@@ -13,19 +13,13 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.action_chains import ActionChains
-from bs4 import BeautifulSoup as bs4
-import pandas as pd
 from webdriver_manager.chrome import ChromeDriverManager
 from ypro_login import ypro_login
-from lxml import html
 from sqlalchemy import create_engine
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
-import time
 
-#TMP_PATH = "S:/プログラム関連/{:}.txt"
 expect_path = '//*[@id="__next"]/div[1]/div/main/div/fieldset[1]/div[2]/div/div/label/input'
-
 
 def ex_date(date_text):
     return date_text.strip().replace('年', '/').replace('月', '/').replace('日', '')
@@ -33,11 +27,6 @@ def ex_date(date_text):
 def set_attribute(driver,xpath,attribute,value):
     elm = driver.find_element(By.XPATH,xpath)
     driver.execute_script(f"arguments[0].{attribute} = arguments[1];", elm,value)
-
-def set_value(driver,xpath,value):
-    elm = driver.find_element(By.XPATH,xpath)
-    driver.execute_script(f"arguments[0].value = arguments[1];", elm,value)
-
 
 def re_exbt(driver,aucid,dict):
     exbt_url = os.environ['RE_EXBT_URL']
@@ -54,7 +43,6 @@ def re_exbt(driver,aucid,dict):
         #カテゴリ
         set_attribute(driver,'//fieldset[3]/div[2]/div/div/div[2]/div/label/input','value',dict['category'])
         #商品説明
-        #set_value(driver,'//*[@id="textMode"]/div[2]/textarea',dict['description'])
         set_attribute(driver,'//*[@id="textMode"]/div[2]/textarea','value',dict['description'])
         #状態
         sts = int(int(re.sub(r"\D","",dict['status']))/10)
@@ -185,9 +173,8 @@ if __name__ == '__main__':
                 if re_exbt(driver,aucid,dict) == True:
                     print("当該オークションの値をセットできました。\n再出品処理を行ってください。")
 
-            while(1):
-                if "q" == input("q を入力するか、ctrl-Cで処理を終了してください"):
-                    break
+                input("なにかキーを入力するか、ctrl-Cで処理を終了してください")
+
         except KeyboardInterrupt:
             print("ctrl-Cが入力されました。")
         except  Exception as e:
