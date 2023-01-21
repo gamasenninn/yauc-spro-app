@@ -1,3 +1,8 @@
+#  2023/01/21
+#  再出品のための処理。
+#　DBから出品データを読み、ストアクリエータープロの再出品処理に埋め込む。
+#　項目が間違っていないかを目視で確認するため、手動で更新ボタンをクリックして更新すること。
+#
 import os
 import sys
 import re
@@ -14,6 +19,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 from ypro_login import ypro_login
 from lxml import html
 from sqlalchemy import create_engine
+from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.orm import Session
 import time
 
 #TMP_PATH = "S:/プログラム関連/{:}.txt"
@@ -22,10 +29,6 @@ expect_path = '//*[@id="__next"]/div[1]/div/main/div/fieldset[1]/div[2]/div/div/
 
 def ex_date(date_text):
     return date_text.strip().replace('年', '/').replace('月', '/').replace('日', '')
-
-def set_attribute_x(driver,xpath,attribute,value):
-    elm = driver.find_element(By.XPATH,xpath)
-    driver.execute_script(f"arguments[0].{attribute} = '{value}';", elm)
 
 def set_attribute(driver,xpath,attribute,value):
     elm = driver.find_element(By.XPATH,xpath)
@@ -89,28 +92,38 @@ def get_target_data(aucid):
 
     DB_URL = os.environ['DB_URL']
     TMP_PATH = os.environ['TMP_PATH']
-    SQL_STR = "select * from 出品商品管理票 where オークションID = '{:}' order by 管理番号 desc limit 10"
 
+    Base = automap_base()
     engine = create_engine(DB_URL, echo=False)
-    df = pd.read_sql(sql=SQL_STR.format(aucid),  con=engine)
-    if not df.empty:
+    Base.prepare(engine,reflect=True)
+    Exhibit = Base.classes.出品商品管理票
+    session = Session(engine)
+
+    q = session.query(Exhibit)\
+        .filter(Exhibit.オークションID==aucid)\
+        .order_by(Exhibit.管理番号.desc())\
+        .first()
+
+    #if not q == None:
+    if q:
         dict = {
-            "pname" : df.loc[0,"商品名"],
-            "title" : df.loc[0,"タイトル"],
-            "scode" : df.loc[0,"仕切書No"],
-            "maker" : df.loc[0,"メーカー"],
-            "model" : df.loc[0,"型式"],
-            "width" : str(df.loc[0,"梱包サイズ横"]),
-            "long" : str(df.loc[0,"梱包サイズ縦"]),
-            "height" : str(df.loc[0,"梱包サイズ高"]),
-            "category" : df.loc[0,"カテゴリID"],
-            "period" : df.loc[0,"出品日数"],
-            "status" : df.loc[0,"商品状態"],
-            "start_price" : int(df.loc[0,"開始価格"]),
-            "end_price" : int(df.loc[0,"即決価格"]),
-            "shipping" : df.loc[0,"発送"],
-            "description" : df.loc[0,"出品詳細"],
+            "pname" : q.商品名,
+            "title" : q.タイトル,
+            "scode" : q.仕切書No,
+            "maker" : q.メーカー,
+            "model" : q.型式,
+            "width" : str(q.梱包サイズ横),
+            "long" : str(q.梱包サイズ縦),
+            "height" : str(q.梱包サイズ高),
+            "category" : q.カテゴリID,
+            "period" : q.出品日数,
+            "status" : q.商品状態,
+            "start_price" : int(q.開始価格),
+            "end_price" : int(q.即決価格),
+            "shipping" : q.発送,
+            "description" : q.出品詳細,
         }
+        #print(dict)
         with open(TMP_PATH.format(dict['shipping']),'r') as f:
             tmp_str = f.read()
         desc = dict["description"]
@@ -136,6 +149,7 @@ def get_target_data(aucid):
         return dict
     return ""
 
+
 if __name__ == '__main__':
 
     load_dotenv()
@@ -149,7 +163,7 @@ if __name__ == '__main__':
 
     if is_test:
         aucid  = "s1064874767"
-        dict = get_target_data(aucid)
+        dict = get_target_data(aucid)       
         sys.exit()
 
         
