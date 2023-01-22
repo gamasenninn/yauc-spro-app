@@ -60,13 +60,14 @@ if __name__ == '__main__':
 
     options = webdriver.ChromeOptions()
     dc = DesiredCapabilities.CHROME.copy() #Cert エラー回避のため、でも効かないみたいなぜか？
-    dc['acceptSslCerts'] = True
+    #dc['acceptSslCerts'] = True
+    dc['acceptInsecureCerts'] = True
 
     if dmode == "remote":
         driver = webdriver.Remote(
             command_executor=hub_url,
-            #desired_capabilities=options.to_capabilities(),
-            desired_capabilities=dc,
+            desired_capabilities=options.to_capabilities(),
+            #desired_capabilities=dc,
             options=options,
         )
     else:
