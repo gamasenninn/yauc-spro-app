@@ -12,16 +12,6 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 #-----ヤフオクを開く------
-def ypro_login_test(driver):
-    load_dotenv()
-    login_id = os.environ['YLOGINID']
-    login_password = os.environ['YPASSWORD']
-    pro_url= os.environ['PRO_URL']
-
-    print("try login.....")
-    driver.get(pro_url)
-
-
 
 def ypro_login(driver):
 
