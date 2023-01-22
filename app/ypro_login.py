@@ -24,6 +24,7 @@ def ypro_login(driver):
         driver.get(pro_url)
         driver.implicitly_wait(10)
         # input user id
+        time.sleep(2)  #やはりこれ入れないと駄目みたい
         for i in range(3):
             search_box = driver.find_element(By.ID,"username")           
         search_box.clear()
