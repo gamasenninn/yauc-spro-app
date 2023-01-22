@@ -16,7 +16,7 @@ import re
 import datetime
 #import gspread
 #import gspread_dataframe as gs_df
-from webdriver_manager.chrome import ChromeDriverManager
+#from webdriver_manager.chrome import ChromeDriverManager
 from ypro_login import ypro_login
 
 
