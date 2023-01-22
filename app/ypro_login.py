@@ -9,8 +9,20 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.action_chains import ActionChains
 import sys
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 #-----ヤフオクを開く------
+def ypro_login_test(driver):
+    load_dotenv()
+    login_id = os.environ['YLOGINID']
+    login_password = os.environ['YPASSWORD']
+    pro_url= os.environ['PRO_URL']
+
+    print("try login.....")
+    driver.get(pro_url)
+
+
+
 def ypro_login(driver):
 
     load_dotenv()
@@ -18,17 +30,24 @@ def ypro_login(driver):
     login_password = os.environ['YPASSWORD']
     pro_url= os.environ['PRO_URL']
 
+    driver.implicitly_wait(10)
 
     print("try login.....")
     try:
-        driver.get(pro_url)
-        driver.implicitly_wait(10)
         # input user id
-        time.sleep(2)  #やはりこれ入れないと駄目みたい
         for i in range(3):
-            search_box = driver.find_element(By.ID,"username")           
-        search_box.clear()
-        search_box.send_keys(login_id)
+            driver.get(pro_url)
+            time.sleep(3)  #やはりこれ入れないと駄目みたい
+            try:
+                search_box = driver.find_element(By.ID,"username")           
+                search_box.clear()
+                search_box.send_keys(login_id)
+            except Exception as e:
+                print(e)
+                time.sleep(1)
+                print("error retry")
+            else:
+                break
             
         driver.find_element(By.ID,"btnNext").click()
         # input password
@@ -50,18 +69,22 @@ if __name__ == '__main__':
     #dmode = "remote"
 
     options = webdriver.ChromeOptions()
+    dc = DesiredCapabilities.CHROME.copy() #Cert エラー回避のため、でも効かないみたいなぜか？
+    dc['acceptSslCerts'] = True
 
     if dmode == "remote":
         driver = webdriver.Remote(
             command_executor=hub_url,
-            desired_capabilities=options.to_capabilities(),
+            #desired_capabilities=options.to_capabilities(),
+            desired_capabilities=dc,
             options=options,
         )
     else:
-        driver = webdriver.Chrome(ChromeDriverManager().install(),options=options)
+        driver = webdriver.Chrome(ChromeDriverManager().install(),options=options,desired_capabilities=dc)
 
     try:
         ypro_login(driver)
+        #ypro_login_test(driver)
         input("Press any key.")
     except Exception as e:
         print("Any error")
