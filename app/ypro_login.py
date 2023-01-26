@@ -10,6 +10,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 import sys
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+import pickle
 
 #-----ヤフオクを開く------
 
@@ -29,7 +30,7 @@ def ypro_login(driver):
             driver.get(pro_url)
             time.sleep(3)  #やはりこれ入れないと駄目みたい
             try:
-                search_box = driver.find_element(By.ID,"username")           
+                search_box = driver.find_element(By.ID,"login_handle")           
                 search_box.clear()
                 search_box.send_keys(login_id)
             except Exception as e:
@@ -38,13 +39,16 @@ def ypro_login(driver):
                 print("error retry")
             else:
                 break
-            
-        driver.find_element(By.ID,"btnNext").click()
+        #time.sleep(30)            
+        driver.find_element(By.XPATH,'//*[@id="content"]/div[1]/div/form/div[1]/div[1]/div[2]/div/button').click()        
         # input password
-        search_box = driver.find_element(By.ID,"passwd")
+        search_box = driver.find_element(By.ID,"password")
         search_box.send_keys(login_password)
-        driver.find_element(By.ID,"btnSubmit").click()
+        #time.sleep(10)
+        driver.find_element(By.XPATH,'//*[@id="content"]/div[1]/div/form/div[2]/div/div[1]/div[2]/div[3]/button').click()
         print("OK log in!")
+        
+
     except Exception as e:
         print(e)
         driver.quit()
@@ -55,8 +59,8 @@ if __name__ == '__main__':
     load_dotenv()
     hub_url = os.environ['HUB_URL']
 
-    dmode = "local" 
-    #dmode = "remote"
+    #dmode = "local" 
+    dmode = "remote"
 
     options = webdriver.ChromeOptions()
     dc = DesiredCapabilities.CHROME.copy() #Cert エラー回避のため、でも効かないみたいなぜか？
@@ -67,7 +71,7 @@ if __name__ == '__main__':
         driver = webdriver.Remote(
             command_executor=hub_url,
             desired_capabilities=options.to_capabilities(),
-            #desired_capabilities=dc,
+            #desired_capabilities=dc,se
             options=options,
         )
     else:
@@ -76,7 +80,17 @@ if __name__ == '__main__':
     try:
         ypro_login(driver)
         #ypro_login_test(driver)
-        input("Press any key.")
+        while(1):
+            cmd_str = input("Press any key.or command")
+            cmds = cmd_str.split()
+            if "send_keys" in cmds[0]:
+                # 認証入力対応
+                driver.find_element(By.ID,"inputText").send_keys(cmds[1])
+                continue
+            if "pickle_dump":
+                pickle.dump(driver.get_cookies() , open("cookies.pkl","wb"))
+            break
+
     except Exception as e:
         print("Any error")
         print(e)

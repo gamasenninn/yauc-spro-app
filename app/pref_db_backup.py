@@ -18,6 +18,8 @@ import sys
 import prefect
 from prefect import task, Flow
 from prefect.run_configs import LocalRun
+from webdriver_manager.chrome import ChromeDriverManager
+
 
 dir_name = os.path.dirname(os.path.abspath(__file__))
 #print("dir_name:",dir_name)
@@ -32,12 +34,19 @@ def init_driver():
     load_dotenv()
     hub_url = os.environ['HUB_URL']
 
+    run_mode = os.environ['RUN_MODE_DB_BACKUP']
+
     options = webdriver.ChromeOptions()
-    driver = webdriver.Remote(
-        command_executor=hub_url,
-        desired_capabilities=options.to_capabilities(),
-        options=options,
-    )
+    if run_mode == "remote":
+        driver = webdriver.Remote(
+            command_executor=hub_url,
+            desired_capabilities=options.to_capabilities(),
+            #desired_capabilities=dc,
+            options=options,
+        )
+    else:
+        driver = webdriver.Chrome(ChromeDriverManager().install(),options=options)
+
     return driver
 
 @task

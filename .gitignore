@@ -137,3 +137,4 @@ google-json/
 launch.json
 
 app/rclone.exe
+app/cookies.pkl

@@ -16,7 +16,7 @@ from bs4 import BeautifulSoup as bs4
 from ypro_login import ypro_login
 import datetime
 import shutil
-
+from webdriver_manager.chrome import ChromeDriverManager
 
 def download_order(driver):
 
@@ -73,13 +73,18 @@ if __name__ == '__main__':
     hub_url = os.environ['HUB_URL']
     download_dir = os.environ['DOWNLOAD_DIR']
 
+    #dmode = "remote"
+    dmode = "local"
 
     options = webdriver.ChromeOptions()
-    driver = webdriver.Remote(
-        command_executor=hub_url,
-        desired_capabilities=options.to_capabilities(),
-        options=options,
-    )
+    if dmode == "remote":
+        driver = webdriver.Remote(
+            command_executor=hub_url,
+            desired_capabilities=options.to_capabilities(),
+            options=options,
+        )
+    else:
+        driver = webdriver.Chrome(ChromeDriverManager().install(),options=options)
 
     ypro_login(driver)
     download_order(driver)

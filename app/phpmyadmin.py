@@ -68,6 +68,7 @@ def download_db(driver):
         sys.exit(-1)
 
     # save to ./data
+    print("exit download....")
     save_filename = datetime.datetime.now().strftime('%y%m%d')+'_'+db_filename
     os.makedirs(backup_dir, exist_ok=True)
     save_path = os.path.join(backup_dir, save_filename)
@@ -78,14 +79,18 @@ if __name__ == '__main__':
     load_dotenv()
     hub_url = os.environ['HUB_URL_TEST']
 
-    options = webdriver.ChromeOptions()
-    driver = webdriver.Chrome(ChromeDriverManager().install())
+    #dmode = "remote"
+    dmode = "local"
 
-    #driver = webdriver.Remote(
-    #    command_executor=hub_url,
-    #    desired_capabilities=options.to_capabilities(),
-    #    options=options,
-    #)
+    options = webdriver.ChromeOptions()
+    if dmode == "remote":
+        driver = webdriver.Remote(
+            command_executor=hub_url,
+            desired_capabilities=options.to_capabilities(),
+            options=options,
+        )
+    else:
+        driver = webdriver.Chrome(ChromeDriverManager().install(),options=options)
 
     php_login(driver)
     download_db(driver)

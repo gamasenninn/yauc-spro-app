@@ -1,0 +1,13 @@
+version: '3'
+services:
+  selenium:
+    container_name: selchrome
+    image: selenium/standalone-chrome:dev
+    ports:
+      - 4444:4444
+      - 7900:7900
+    shm_size: "2gb"
+    volumes:
+      - type: bind
+        source: C:/Users/user/Downloads
+        target: /home/seluser/Downloads
