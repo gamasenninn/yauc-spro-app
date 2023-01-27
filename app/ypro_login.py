@@ -13,6 +13,51 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import pickle
 
 #-----ヤフオクを開く------
+def init_driver():
+
+    load_dotenv()
+    hub_url = os.environ['HUB_URL']
+    run_mode = os.environ['RUN_MODE']
+
+    options = webdriver.ChromeOptions()
+    dc = DesiredCapabilities.CHROME.copy() #Cert エラー回避のため、でも効かないみたいなぜか？
+    #dc['acceptSslCerts'] = True
+    dc['acceptInsecureCerts'] = True
+
+    if run_mode== "remote":
+        driver = webdriver.Remote(
+            command_executor=hub_url,
+            desired_capabilities=options.to_capabilities(),
+            #desired_capabilities=dc,se
+            options=options,
+        )
+    else:
+        driver = webdriver.Chrome(ChromeDriverManager().install(),options=options,desired_capabilities=dc)
+
+    return driver
+
+def ypro_login_pickle(driver):
+    load_dotenv()
+    pro_url= os.environ['PRO_URL']
+    run_mode = os.environ['RUN_MODE']
+    
+    driver.get(pro_url)
+    cookies = pickle.load(open(f"cookies_{run_mode}.pkl","rb"))
+    for cookie in cookies:
+        if cookie['domain'] == ".yahoo.co.jp":
+            driver.add_cookie(cookie)
+            #print("cookie")
+
+    driver.get(pro_url)
+    print(driver.find_element(By.XPATH,'//*[@id="ygmhlog"]').get_attribute("alt"))
+    try:
+        if "ストアクリエイター" in driver.find_element(By.XPATH,'//*[@id="ygmhlog"]').get_attribute("alt"):
+            return True
+        else:
+            return False
+    except Exception as e:
+        print(e)
+        return False
 
 def ypro_login(driver):
 
@@ -22,6 +67,10 @@ def ypro_login(driver):
     pro_url= os.environ['PRO_URL']
 
     driver.implicitly_wait(10)
+
+    print("try login via pickle.....")
+    if ypro_login_pickle(driver):
+        return True
 
     print("try login.....")
     try:
@@ -47,6 +96,8 @@ def ypro_login(driver):
         #time.sleep(10)
         driver.find_element(By.XPATH,'//*[@id="content"]/div[1]/div/form/div[2]/div/div[1]/div[2]/div[3]/button').click()
         print("OK log in!")
+
+        return True
         
 
     except Exception as e:
@@ -55,41 +106,25 @@ def ypro_login(driver):
         sys.exit()
 
 if __name__ == '__main__':
-
     load_dotenv()
-    hub_url = os.environ['HUB_URL']
-
-    #dmode = "local" 
-    dmode = "remote"
-
-    options = webdriver.ChromeOptions()
-    dc = DesiredCapabilities.CHROME.copy() #Cert エラー回避のため、でも効かないみたいなぜか？
-    #dc['acceptSslCerts'] = True
-    dc['acceptInsecureCerts'] = True
-
-    if dmode == "remote":
-        driver = webdriver.Remote(
-            command_executor=hub_url,
-            desired_capabilities=options.to_capabilities(),
-            #desired_capabilities=dc,se
-            options=options,
-        )
-    else:
-        driver = webdriver.Chrome(ChromeDriverManager().install(),options=options,desired_capabilities=dc)
+    run_mode = os.environ['RUN_MODE']
 
     try:
+        driver = init_driver()
         ypro_login(driver)
-        #ypro_login_test(driver)
         while(1):
-            cmd_str = input("Press any key.or command")
+            cmd_str = input("command q=exit>> ")
+            if not cmd_str:
+                continue             
             cmds = cmd_str.split()
             if "send_keys" in cmds[0]:
                 # 認証入力対応
                 driver.find_element(By.ID,"inputText").send_keys(cmds[1])
                 continue
             if "pickle_dump":
-                pickle.dump(driver.get_cookies() , open("cookies.pkl","wb"))
-            break
+                pickle.dump(driver.get_cookies() , open(f"cookies_{run_mode}.pkl","wb"))
+            if "q":
+                break
 
     except Exception as e:
         print("Any error")
