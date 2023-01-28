@@ -139,3 +139,4 @@ launch.json
 app/rclone.exe
 app/cookies.pkl
 app/cookies_local.pkl
+app/cookies_remote.pkl
