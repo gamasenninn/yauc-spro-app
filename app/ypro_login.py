@@ -3,21 +3,24 @@ import time
 from dotenv import load_dotenv
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.common.action_chains import ActionChains
+#from selenium.webdriver.support.ui import WebDriverWait
+#from selenium.webdriver.support import expected_conditions as EC
+#from selenium.common.exceptions import TimeoutException
+#from selenium.webdriver.common.action_chains import ActionChains
 import sys
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import pickle
 
 #-----ヤフオクを開く------
-def init_driver():
+def init_driver(mode=''):
 
     load_dotenv()
     hub_url = os.environ['HUB_URL']
-    run_mode = os.environ['RUN_MODE']
+    if not mode: 
+        run_mode = os.environ['RUN_MODE']
+    else:
+        run_mode = mode
 
     options = webdriver.ChromeOptions()
     dc = DesiredCapabilities.CHROME.copy() #Cert エラー回避のため、でも効かないみたいなぜか？
@@ -42,7 +45,11 @@ def ypro_login_pickle(driver):
     run_mode = os.environ['RUN_MODE']
     
     driver.get(pro_url)
-    cookies = pickle.load(open(f"cookies_{run_mode}.pkl","rb"))
+    try:
+        cookies = pickle.load(open(f"cookies_{run_mode}.pkl","rb"))
+    except Exception as e:
+        print(e)
+        return False
     for cookie in cookies:
         if cookie['domain'] == ".yahoo.co.jp":
             driver.add_cookie(cookie)
@@ -108,9 +115,10 @@ def ypro_login(driver):
 if __name__ == '__main__':
     load_dotenv()
     run_mode = os.environ['RUN_MODE']
+    #run_mode = "local"
 
     try:
-        driver = init_driver()
+        driver = init_driver(run_mode)
         ypro_login(driver)
         while(1):
             cmd_str = input("command q=exit>> ")
@@ -120,10 +128,9 @@ if __name__ == '__main__':
             if "send_keys" in cmds[0]:
                 # 認証入力対応
                 driver.find_element(By.ID,"inputText").send_keys(cmds[1])
-                continue
-            if "pickle_dump":
+            if "pickle_dump" in cmds[0]:
                 pickle.dump(driver.get_cookies() , open(f"cookies_{run_mode}.pkl","wb"))
-            if "q":
+            if "q" in cmds[0]:
                 break
 
     except Exception as e:
@@ -133,7 +140,6 @@ if __name__ == '__main__':
         print("Termination in process.......")
         driver.quit()
         print(".....Finished")
-
 
 #------implicite　waitに変更したあと
        #WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'username')))
