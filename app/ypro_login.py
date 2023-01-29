@@ -3,16 +3,12 @@ import time
 from dotenv import load_dotenv
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-#from selenium.webdriver.support.ui import WebDriverWait
-#from selenium.webdriver.support import expected_conditions as EC
-#from selenium.common.exceptions import TimeoutException
-#from selenium.webdriver.common.action_chains import ActionChains
 import sys
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import pickle
 
-#-----ヤフオクを開く------
+#-----open target url ------
 def init_driver(mode=''):
 
     load_dotenv()
@@ -43,6 +39,8 @@ def ypro_login_pickle(driver):
     load_dotenv()
     pro_url= os.environ['PRO_URL']
     run_mode = os.environ['RUN_MODE']
+    target_domain = ".yahoo.co.jp"
+    expect_str = "ストアクリエイター"
     
     driver.get(pro_url)
     try:
@@ -51,14 +49,13 @@ def ypro_login_pickle(driver):
         print(e)
         return False
     for cookie in cookies:
-        if cookie['domain'] == ".yahoo.co.jp":
+        if cookie['domain'] == target_domain:
             driver.add_cookie(cookie)
-            #print("cookie")
 
     driver.get(pro_url)
     print(driver.find_element(By.XPATH,'//*[@id="ygmhlog"]').get_attribute("alt"))
     try:
-        if "ストアクリエイター" in driver.find_element(By.XPATH,'//*[@id="ygmhlog"]').get_attribute("alt"):
+        if expect_str in driver.find_element(By.XPATH,'//*[@id="ygmhlog"]').get_attribute("alt"):
             return True
         else:
             return False
@@ -105,8 +102,7 @@ def ypro_login(driver):
         print("OK log in!")
 
         return True
-        
-
+       
     except Exception as e:
         print(e)
         driver.quit()
@@ -149,6 +145,11 @@ if __name__ == '__main__':
         print(".....Finished")
 
 #------implicite　waitに変更したあと
+#from selenium.webdriver.support.ui import WebDriverWait
+#from selenium.webdriver.support import expected_conditions as EC
+#from selenium.common.exceptions import TimeoutException
+#from selenium.webdriver.common.action_chains import ActionChains
+
        #WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'username')))
        #WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'passwd')))
  
