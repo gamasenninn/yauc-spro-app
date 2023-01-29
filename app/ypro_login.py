@@ -113,9 +113,16 @@ def ypro_login(driver):
         sys.exit()
 
 if __name__ == '__main__':
+
     load_dotenv()
     run_mode = os.environ['RUN_MODE']
-    #run_mode = "local"
+
+    args = sys.argv
+    if len(args) >1 :
+        if args[1] == 'remote':
+            run_mode = 'remote'
+        else:
+            run_mode = 'local'
 
     try:
         driver = init_driver(run_mode)
