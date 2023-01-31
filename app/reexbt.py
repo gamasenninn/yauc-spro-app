@@ -14,7 +14,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.action_chains import ActionChains
 from webdriver_manager.chrome import ChromeDriverManager
-from ypro_login import ypro_login
+from ypro_login import ypro_login,init_driver
 from sqlalchemy import create_engine
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
@@ -144,38 +144,22 @@ if __name__ == '__main__':
     hub_url = os.environ['HUB_URL']
 
     dmode = "local" # "remote"
-    is_test = False
 
     if len(sys.argv) > 1 :
         aucid=sys.argv[1]
     else:
         print("パラメータエラー: IDを入力してください")
         sys.exit(0)
-
-    if is_test:
-        dict = get_target_data(aucid)       
-        sys.exit(0)
-
         
     dict = get_target_data(aucid)
     if dict:
         try:
-            options = webdriver.ChromeOptions()
-            if dmode == "remote":
-                driver = webdriver.Remote(
-                    command_executor=hub_url,
-                    desired_capabilities=options.to_capabilities(),
-                    options=options,
-                )
-            else:
-                driver = webdriver.Chrome(ChromeDriverManager().install(),options=options)
+            driver = init_driver(dmode)
+            ypro_login(driver)
+            if re_exbt(driver,aucid,dict) == True:
+                print("当該オークションの値をセットできました。\n再出品処理を行ってください。")
 
-            if dict:
-                ypro_login(driver)
-                if re_exbt(driver,aucid,dict) == True:
-                    print("当該オークションの値をセットできました。\n再出品処理を行ってください。")
-
-                input("なにかキーを入力するか、ctrl-Cで処理を終了してください")
+            input("なにかキーを入力するか、ctrl-Cで処理を終了してください")
 
         except KeyboardInterrupt:
             print("ctrl-Cが入力されました。")
