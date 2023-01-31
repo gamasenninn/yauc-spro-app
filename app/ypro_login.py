@@ -44,7 +44,8 @@ def ypro_login_pickle(driver):
     
     driver.get(pro_url)
     try:
-        cookies = pickle.load(open(f"cookies_{run_mode}.pkl","rb"))
+        pkl_filepath = os.path.join(os.path.dirname(os.path.abspath(__file__)),f"cookies_{run_mode}.pkl")
+        cookies = pickle.load(open(pkl_filepath,"rb"))
     except Exception as e:
         print(e)
         return False
