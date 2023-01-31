@@ -10,6 +10,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 import sys
 import datetime
 import shutil
+import glob
 
 
 from webdriver_manager.chrome import ChromeDriverManager
@@ -46,19 +47,22 @@ def download_db(driver):
     phpmyadmin_url = os.environ['PHPMYADMIN_URL']
     download_dir = os.environ['DOWNLOAD_DIR']
     db_filename = os.environ['DB_FILENAME']
+    db_remove_filename = os.environ['DB_REMOVE_FILENAME']
     data_dir = os.environ['DATA_DIR']
     backup_dir = os.environ['BACKUP_DIR']
-    download_tinmeout = int(os.environ['DOWNLOAD_TIMEOUT'])
+    download_tinmeout = int(os.environ['DOWNLOAD_TIMEOUT'])   
 
     driver.get(f'{phpmyadmin_url}/index.php?route=/server/export')
     WebDriverWait(driver, 5).until(
         EC.presence_of_element_located((By.ID, 'buttonGo')))
     driver.find_element_by_id('buttonGo').click()
 
-    file_path = os.path.join(download_dir, db_filename)
-    if os.path.exists(file_path):
-        os.remove(file_path)
 
+    remove_file_path = os.path.join(download_dir, db_remove_filename)
+    for fname in glob.glob(remove_file_path):
+            os.remove(fname)
+
+    file_path = os.path.join(download_dir, db_filename)
     for i in range(download_tinmeout):
         if os.path.isfile(file_path):
             break
