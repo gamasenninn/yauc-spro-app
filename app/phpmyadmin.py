@@ -76,7 +76,7 @@ def download_db(driver):
     save_filename = datetime.datetime.now().strftime('%y%m%d')+'_'+db_filename
     os.makedirs(backup_dir, exist_ok=True)
     save_path = os.path.join(backup_dir, save_filename)
-    shutil.copy(file_path, save_path)
+    shutil.move(file_path, save_path)
 
 if __name__ == '__main__':
 
