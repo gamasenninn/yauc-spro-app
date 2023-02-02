@@ -1,24 +1,12 @@
-import time
 import os
 from dotenv import load_dotenv
-from selenium import webdriver
-import chromedriver_binary
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.common.action_chains import ActionChains
-import requests
 from bs4 import BeautifulSoup as bs4
 import pandas as pd
 import sys
 import re
 import datetime
 from dateutil.relativedelta import relativedelta
-#import gspread
-#import gspread_dataframe as gs_df
-from webdriver_manager.chrome import ChromeDriverManager
-from ypro_login import ypro_login
+from ypro_login import ypro_login,init_driver
 
 
 def ex_date(date_text):
@@ -152,16 +140,9 @@ def fee_list_before_montth(driver):
 
 if __name__ == '__main__':
 
-    load_dotenv()
-    hub_url = os.environ['HUB_URL']
+    dmode = "local" # "remote"
 
-    options = webdriver.ChromeOptions()
-    driver = webdriver.Remote(
-        command_executor=hub_url,
-        desired_capabilities=options.to_capabilities(),
-        options=options,
-    )
-
+    driver = init_driver(dmode)
     ypro_login(driver)
     fee_list_before_montth(driver)
 
