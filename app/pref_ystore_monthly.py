@@ -11,6 +11,9 @@ dir_name = os.path.dirname(os.path.abspath(__file__))
 from ypro_login import ypro_login,init_driver
 from fee_list_before_month import fee_list_before_montth
 from csv2gsp_feelist_before_month import csv2gsp_feelist_before_month
+from download_order import download_order
+
+
 #os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -21,6 +24,11 @@ def t_ylogin():
     driver = init_driver()
     ypro_login(driver)
     logger.info("ypro_login!")
+    return driver
+
+@task
+def t_download_order(driver):
+    download_order(driver)
     return driver
 
 @task
@@ -43,9 +51,11 @@ def t_final(driver):
 with Flow("ystore-monthly",run_config=LocalRun(working_dir=dir_name)) as flow:
     #init_driver()
     driver1 = t_ylogin()
-    driver2 = t_load_feelist_bm(driver1)
-    driver3  = t_trans_feelist_bm(driver2)
-    final = t_final(driver3)
+    driver2 = t_download_order(driver1)
+
+    driver3 = t_load_feelist_bm(driver2)
+    driver4  = t_trans_feelist_bm(driver3)
+    final = t_final(driver4)
 
 if __name__ == '__main__':
 
