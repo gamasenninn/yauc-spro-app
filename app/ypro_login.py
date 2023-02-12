@@ -45,15 +45,18 @@ def ypro_login_pickle(driver):
     driver.get(pro_url)
     try:
         pkl_filepath = os.path.join(os.path.dirname(os.path.abspath(__file__)),f"cookies_{run_mode}.pkl")
+        print("pkl_file:",pkl_filepath)
         cookies = pickle.load(open(pkl_filepath,"rb"))
     except Exception as e:
         print(e)
         return False
     for cookie in cookies:
+        #print(cookie)
         if cookie['domain'] == target_domain:
             driver.add_cookie(cookie)
 
     driver.get(pro_url)
+    print("PRO URL:",pro_url)
     print(driver.find_element(By.XPATH,'//*[@id="ygmhlog"]').get_attribute("alt"))
     try:
         if expect_str in driver.find_element(By.XPATH,'//*[@id="ygmhlog"]').get_attribute("alt"):
@@ -69,13 +72,15 @@ def ypro_login(driver):
     load_dotenv()
     login_id = os.environ['YLOGINID']
     login_password = os.environ['YPASSWORD']
-    pro_url= os.environ['PRO_URL']
+    pro_url = os.environ['PRO_URL']
+    is_pkl = os.environ['IS_PKL']
 
     driver.implicitly_wait(10)
 
-    print("try login via pickle.....")
-    if ypro_login_pickle(driver):
-        return True
+    if is_pkl == "TRUE":
+        print("try login via pickle.....")
+        if ypro_login_pickle(driver):
+            return True
 
     print("try login.....")
     try:
