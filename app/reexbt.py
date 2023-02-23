@@ -18,6 +18,7 @@ from ypro_login import ypro_login,init_driver
 from sqlalchemy import create_engine
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
+import time
 
 expect_path = '//*[@id="__next"]/div[1]/div/main/div/fieldset[1]/div[2]/div/div/label/input'
 
@@ -37,11 +38,16 @@ def re_exbt(driver,aucid,dict):
 
     try:
         driver.find_element(By.XPATH,expect_path)
+        time.sleep(3) #これを入れないと反映されないかも
 
         #タイトル
-        set_attribute(driver,'//fieldset[2]/div[2]/div/label/input','value',dict['title'])
+        #set_attribute(driver,'//fieldset[2]/div[2]/div/label/input','value',dict['title'])
+        driver.find_element(By.XPATH,'//fieldset[2]/div[2]/div/label/input').clear()
+        driver.find_element(By.XPATH,'//fieldset[2]/div[2]/div/label/input').send_keys(dict['title'])  
         #カテゴリ
         set_attribute(driver,'//fieldset[3]/div[2]/div/div/div[2]/div/label/input','value',dict['category'])
+        #driver.find_element(By.XPATH,'//fieldset[3]/div[2]/div/div/div[2]/div/label/input').clear()
+        #driver.find_element(By.XPATH,'//fieldset[3]/div[2]/div/div/div[2]/div/label/input').send_keys(dict['category'])  
         #商品説明
         set_attribute(driver,'//*[@id="textMode"]/div[2]/textarea','value',dict['description'])
         #状態
@@ -50,13 +56,22 @@ def re_exbt(driver,aucid,dict):
         #消費税
         tax = 3
         driver.find_element(By.XPATH,f'//fieldset[11]/div[2]/div/ul/li[{tax}]/div/label/span[2]').click()
-        #税込み
+        #税込み=税抜きでやる
+        driver.find_element(By.XPATH,f'//fieldset[12]/div[2]/div/div/div[1]/div/label/span[1]').click()
+        #set_attribute(driver,'//fieldset[12]/div[2]/div/div/div[1]/div/label/input','value','1')
+        #time.sleep(1)
         #開始価格
-        set_attribute(driver,'//fieldset[12]/div[2]/div/div/div[2]/div/div[2]/div/label/input','value',dict['start_price'])
+        #set_attribute(driver,'//fieldset[12]/div[2]/div/div/div[2]/div/div[2]/div/label/input','value',dict['start_price'])
+        driver.find_element(By.XPATH,'//fieldset[12]/div[2]/div/div/div[2]/div/div[2]/div/label/input').clear()
+        driver.find_element(By.XPATH,'//fieldset[12]/div[2]/div/div/div[2]/div/div[2]/div/label/input').send_keys(dict['start_price'])  
         #即決価格
-        set_attribute(driver,'//fieldset[12]/div[2]/div/div/div[3]/div/div[2]/div/label/input','value',dict['end_price'])
+        #set_attribute(driver,'//fieldset[12]/div[2]/div/div/div[3]/div/div[2]/div/label/input','value',dict['end_price'])
+        driver.find_element(By.XPATH,'//fieldset[12]/div[2]/div/div/div[3]/div/div[2]/div/label/input').clear()
+        driver.find_element(By.XPATH,'//fieldset[12]/div[2]/div/div/div[3]/div/div[2]/div/label/input').send_keys(dict['end_price'])  
         #個数
         set_attribute(driver,'//fieldset[13]/div[2]/div/div/div/label/input','value','1')
+        #driver.find_element(By.XPATH,'//fieldset[13]/div[2]/div/div/div/label/input').clear()
+        #driver.find_element(By.XPATH,'//fieldset[13]/div[2]/div/div/div/label/input').send_keys('1')  
         #開催期間
         day_period = dict['period']
         time_priod = 17
@@ -137,11 +152,14 @@ def get_target_data(aucid):
         return dict
     return ""
 
+def quit():
+    driver.quit()
 
 if __name__ == '__main__':
 
     load_dotenv()
     hub_url = os.environ['HUB_URL']
+    is_driver_quit = True
 
     dmode = "local" # "remote"
 
@@ -159,7 +177,10 @@ if __name__ == '__main__':
             if re_exbt(driver,aucid,dict) == True:
                 print("当該オークションの値をセットできました。\n再出品処理を行ってください。")
 
+            #sys.exit(0)
+
             input("なにかキーを入力するか、ctrl-Cで処理を終了してください")
+
 
         except KeyboardInterrupt:
             print("ctrl-Cが入力されました。")
@@ -168,7 +189,9 @@ if __name__ == '__main__':
             print(e)
         finally:
             print("処理を終了してます。しばらくお待ちを・・・")
-            driver.quit()
+            if is_driver_quit :
+                print("ドライバーを終了します")
+                driver.quit()
             print("・・・・終了しますた!!")
     else:
         print("該当するオークションはありません")
