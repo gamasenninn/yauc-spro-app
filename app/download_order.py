@@ -25,6 +25,7 @@ def download_order(driver):
     order_filename = os.environ['ORDER_FILENAME']
     data_dir = os.environ['DATA_DIR']
     download_tinmeout = int(os.environ['DOWNLOAD_TIMEOUT'])
+    order_start = os.environ['ORDER_START']
 
     # -- jump search page  ---
     url = f'{pro_url}/order/manage/index'
@@ -32,7 +33,7 @@ def download_order(driver):
 
     start_day = driver.find_element_by_id("OrderTimeFromDayE")
     start_day.send_keys(Keys.CONTROL+ "a")
-    start_day.send_keys("2023/01/01")
+    start_day.send_keys(order_start)
 
     btns = driver.find_elements_by_class_name("btnBlL")
     btns[1].find_element_by_tag_name('a').click()
