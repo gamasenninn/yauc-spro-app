@@ -39,7 +39,7 @@ def ypro_login_pickle(driver):
     load_dotenv()
     pro_url= os.environ['PRO_URL']
     run_mode = os.environ['RUN_MODE']
-    target_domain = ".yahoo.co.jp"
+    target_domain = [".yahoo.co.jp"]
     expect_str = "ストアクリエイター"
     
     driver.get(pro_url)
@@ -48,23 +48,23 @@ def ypro_login_pickle(driver):
         print("pkl_file:",pkl_filepath)
         cookies = pickle.load(open(pkl_filepath,"rb"))
     except Exception as e:
-        print(e)
+        print("in ",e)
         return False
     for cookie in cookies:
         #print(cookie)
-        if cookie['domain'] == target_domain:
+        if cookie['domain'] in target_domain:
             driver.add_cookie(cookie)
 
     driver.get(pro_url)
     print("PRO URL:",pro_url)
-    print(driver.find_element(By.XPATH,'//*[@id="ygmhlog"]').get_attribute("alt"))
+    #print(driver.find_element(By.XPATH,'//*[@id="ygmhlog"]').get_attribute("alt"))
     try:
         if expect_str in driver.find_element(By.XPATH,'//*[@id="ygmhlog"]').get_attribute("alt"):
             return True
         else:
             return False
     except Exception as e:
-        print(e)
+        print("ypro_login_pickle.....: ",e)
         return False
 
 def ypro_login(driver):
@@ -75,7 +75,7 @@ def ypro_login(driver):
     pro_url = os.environ['PRO_URL']
     is_pkl = os.environ['IS_PKL']
 
-    driver.implicitly_wait(10)
+    driver.implicitly_wait(20)
 
     if is_pkl == "TRUE":
         print("try login via pickle.....")

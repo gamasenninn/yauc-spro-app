@@ -45,11 +45,14 @@ def re_exbt(driver,aucid,dict):
         driver.find_element(By.XPATH,'//fieldset[2]/div[2]/div/label/input').clear()
         driver.find_element(By.XPATH,'//fieldset[2]/div[2]/div/label/input').send_keys(dict['title'])  
         #カテゴリ
-        set_attribute(driver,'//fieldset[3]/div[2]/div/div/div[2]/div/label/input','value',dict['category'])
+        driver.find_element(By.XPATH,'//fieldset[3]/div[2]/div/div/div[2]/div/label/input').clear  
+        driver.find_element(By.XPATH,'//fieldset[3]/div[2]/div/div/div[2]/div/label/input').send_keys(dict['category'])  
+        #set_attribute(driver,'//fieldset[3]/div[2]/div/div/div[2]/div/label/input','value',dict['category'])
         #driver.find_element(By.XPATH,'//fieldset[3]/div[2]/div/div/div[2]/div/label/input').clear()
         #driver.find_element(By.XPATH,'//fieldset[3]/div[2]/div/div/div[2]/div/label/input').send_keys(dict['category'])  
         #商品説明
         set_attribute(driver,'//*[@id="textMode"]/div[2]/textarea','value',dict['description'])
+        driver.find_element(By.XPATH,'//*[@id="textMode"]/div[2]/textarea').send_keys(' ')
         #状態
         sts = int(int(re.sub(r"\D","",dict['status']))/10)
         driver.find_element(By.XPATH,f'//fieldset[10]/div[2]/div/ul/li[{sts}]/div/label/span[2]').click()
