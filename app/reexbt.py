@@ -59,8 +59,8 @@ def re_exbt(driver,aucid,dict):
         #消費税
         tax = 3
         driver.find_element(By.XPATH,f'//fieldset[11]/div[2]/div/ul/li[{tax}]/div/label/span[2]').click()
-        #税込み=税抜きでやる
-        driver.find_element(By.XPATH,f'//fieldset[12]/div[2]/div/div/div[1]/div/label/span[1]').click()
+        #税込み=税抜きでやる 何もしないようにしてみる
+        driver.find_element(By.XPATH,f'//fieldset[12]/div[2]/div/div/div[1]/div/label/input').click()
         #set_attribute(driver,'//fieldset[12]/div[2]/div/div/div[1]/div/label/input','value','1')
         #time.sleep(1)
         #開始価格
