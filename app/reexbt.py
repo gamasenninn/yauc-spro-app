@@ -36,7 +36,8 @@ def re_exbt(driver,aucid,dict):
     driver.get(exbt_url+aucid)
     driver.implicitly_wait(10)
 
-    try:
+    #try:
+    if True:
         driver.find_element(By.XPATH,expect_path)
         time.sleep(3) #これを入れないと反映されないかも
 
@@ -44,15 +45,16 @@ def re_exbt(driver,aucid,dict):
         #set_attribute(driver,'//fieldset[2]/div[2]/div/label/input','value',dict['title'])
         driver.find_element(By.XPATH,'//fieldset[2]/div[2]/div/label/input').clear()
         driver.find_element(By.XPATH,'//fieldset[2]/div[2]/div/label/input').send_keys(dict['title'])  
-        #カテゴリ
-        driver.find_element(By.XPATH,'//fieldset[3]/div[2]/div/div/div[2]/div/label/input').clear  
-        driver.find_element(By.XPATH,'//fieldset[3]/div[2]/div/div/div[2]/div/label/input').send_keys(dict['category'])  
+        #カテゴリ 送っちゃダメ
+        #driver.find_element(By.XPATH,'//fieldset[3]/div[2]/div/div/div[2]/div/label/input').clear  
+        #driver.find_element(By.XPATH,'//fieldset[3]/div[2]/div/div/div[2]/div/label/input').send_keys(dict#['category'])  
         #set_attribute(driver,'//fieldset[3]/div[2]/div/div/div[2]/div/label/input','value',dict['category'])
         #driver.find_element(By.XPATH,'//fieldset[3]/div[2]/div/div/div[2]/div/label/input').clear()
         #driver.find_element(By.XPATH,'//fieldset[3]/div[2]/div/div/div[2]/div/label/input').send_keys(dict['category'])  
         #商品説明
+        print(dict['description'])
         set_attribute(driver,'//*[@id="textMode"]/div[2]/textarea','value',dict['description'])
-        driver.find_element(By.XPATH,'//*[@id="textMode"]/div[2]/textarea').send_keys(' ')
+        #driver.find_element(By.XPATH,'//*[@id="textMode"]/div[2]/textarea').send_keys(' ')
         #状態
         sts = int(int(re.sub(r"\D","",dict['status']))/10)
         driver.find_element(By.XPATH,f'//fieldset[10]/div[2]/div/ul/li[{sts}]/div/label/span[2]').click()
@@ -60,7 +62,7 @@ def re_exbt(driver,aucid,dict):
         tax = 3
         driver.find_element(By.XPATH,f'//fieldset[11]/div[2]/div/ul/li[{tax}]/div/label/span[2]').click()
         #税込み=税抜きでやる 何もしないようにしてみる
-        driver.find_element(By.XPATH,f'//fieldset[12]/div[2]/div/div/div[1]/div/label/input').click()
+        driver.find_element(By.XPATH,f'//fieldset[12]/div[2]/div/div/div[1]/div/label//span[1]').click()
         #set_attribute(driver,'//fieldset[12]/div[2]/div/div/div[1]/div/label/input','value','1')
         #time.sleep(1)
         #開始価格
@@ -84,10 +86,10 @@ def re_exbt(driver,aucid,dict):
         # 再出品ボタンをクリック(確認段階)
         #driver.find_element(By.XPATH,'//*[@id="__next"]/div[1]/div/main/div/div[3]/ul/li[2]/button').click()
 
-    except Exception as e:
-        print("該当するオークションに問題があります")
-        print(e)
-        return False
+    #except Exception as e:
+    #    print("該当するオークションに問題があります")
+    #    print(e)
+    #    return False
 
     return True
 
@@ -142,6 +144,9 @@ def get_target_data(aucid):
                     setsumei = ds[i]
                 else:
                     bikou = bikou+ ds[i]
+        else:
+                    setsumei = desc
+            
         tmp_str = tmp_str.replace("%%SHOHIN_NAME%%",dict["pname"])
         tmp_str = tmp_str.replace("%%MAKER%%",dict["maker"])
         tmp_str = tmp_str.replace("%%KATASHIKI%%",dict["model"])
@@ -174,6 +179,7 @@ if __name__ == '__main__':
         
     dict = get_target_data(aucid)
     if dict:
+        driver = None
         try:
             driver = init_driver(dmode)
             ypro_login(driver)
@@ -187,14 +193,15 @@ if __name__ == '__main__':
 
         except KeyboardInterrupt:
             print("ctrl-Cが入力されました。")
-        except  Exception as e:
-            print("例外が発生しました")
-            print(e)
+        #except  Exception as e:
+        #    print("例外が発生しました")
+        #    print(e)
         finally:
             print("処理を終了してます。しばらくお待ちを・・・")
             if is_driver_quit :
-                print("ドライバーを終了します")
-                driver.quit()
+                if driver is not None:
+                    print("ドライバーを終了します")
+                    driver.quit()
             print("・・・・終了しますた!!")
     else:
         print("該当するオークションはありません")

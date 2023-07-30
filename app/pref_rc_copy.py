@@ -61,7 +61,7 @@ if __name__ == '__main__':
     #flow.run_config = LocalRun(working_dir=dir_name)
     if len(args) >1 :
         if args[1] == 'reg':
-            flow.register(project_name="test")
+            flow.register(project_name="hks")
     else:
         flow.run()
     pass
