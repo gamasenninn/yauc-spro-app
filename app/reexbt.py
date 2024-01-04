@@ -56,8 +56,20 @@ def re_exbt(driver,aucid,dict):
         set_attribute(driver,'//*[@id="textMode"]/div[2]/textarea','value',dict['description'])
         #driver.find_element(By.XPATH,'//*[@id="textMode"]/div[2]/textarea').send_keys(' ')
         #状態
-        sts = int(int(re.sub(r"\D","",dict['status']))/10)
-        driver.find_element(By.XPATH,f'//fieldset[10]/div[2]/div/ul/li[{sts}]/div/label/span[2]').click()
+        #sts = int(int(re.sub(r"\D","",dict['status']))/10)
+        def convert_status(status):
+            status_mapping = {
+                "istatus_new": 1,
+                "istatus_used10": 2,
+                "istatus_used20": 3,
+                "istatus_used40": 4,
+                "istatus_used60": 5,
+                "istatus_used80": 6
+            }
+            return status_mapping.get(status, "Invalid status")
+        
+        sts=convert_status(dict['status'])
+        driver.find_element(By.XPATH,f'//fieldset[10]/div[2]/div/ul/li[{sts}]/div/label/span[1]').click()
         #消費税
         tax = 3
         driver.find_element(By.XPATH,f'//fieldset[11]/div[2]/div/ul/li[{tax}]/div/label/span[2]').click()
