@@ -9,14 +9,9 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.action_chains import ActionChains
 from bs4 import BeautifulSoup as bs4
-#import pandas as pd
-#import sys
-#import re
-#import datetime
-from ypro_login import ypro_login
+from ypro_login import ypro_login,init_driver
 import datetime
 import shutil
-from webdriver_manager.chrome import ChromeDriverManager
 
 def download_order(driver):
 
@@ -31,12 +26,12 @@ def download_order(driver):
     url = f'{pro_url}/order/manage/index'
     driver.get(url)
 
-    start_day = driver.find_element_by_id("OrderTimeFromDayE")
+    start_day = driver.find_element(By.ID,"OrderTimeFromDayE")
     start_day.send_keys(Keys.CONTROL+ "a")
     start_day.send_keys(order_start)
 
-    btns = driver.find_elements_by_class_name("btnBlL")
-    btns[1].find_element_by_tag_name('a').click()
+    btns = driver.find_elements(By.CLASS_NAME,"btnBlL")
+    btns[1].find_element(By.TAG_NAME,'a').click()
 
     # remove down load file
     file_path = os.path.join(download_dir, order_filename)
@@ -46,8 +41,8 @@ def download_order(driver):
     # download
     WebDriverWait(driver, 5).until(
         EC.presence_of_element_located((By.ID, 'ycWrContentsFix')))
-    link = driver.find_element_by_class_name("fileNum")
-    link.find_element_by_tag_name('a').click()
+    link = driver.find_element(By.CLASS_NAME,"fileNum")
+    link.find_element(By.TAG_NAME,'a').click()
 
     is_not_timeout = True
     for i in range(download_tinmeout):
@@ -70,23 +65,9 @@ def download_order(driver):
 
 if __name__ == '__main__':
 
-    load_dotenv()
-    hub_url = os.environ['HUB_URL']
-    download_dir = os.environ['DOWNLOAD_DIR']
+    dmode = "local" # "remote"
 
-    #dmode = "remote"
-    dmode = "local"
-
-    options = webdriver.ChromeOptions()
-    if dmode == "remote":
-        driver = webdriver.Remote(
-            command_executor=hub_url,
-            desired_capabilities=options.to_capabilities(),
-            options=options,
-        )
-    else:
-        driver = webdriver.Chrome(ChromeDriverManager().install(),options=options)
-
+    driver = init_driver(dmode)
     ypro_login(driver)
     download_order(driver)
 

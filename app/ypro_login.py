@@ -4,9 +4,10 @@ from dotenv import load_dotenv
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import sys
-from webdriver_manager.chrome import ChromeDriverManager
+#from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import pickle
+from selenium.webdriver.chrome.options import Options
 
 #-----open target url ------
 def init_driver(mode=''):
@@ -19,19 +20,27 @@ def init_driver(mode=''):
         run_mode = mode
 
     options = webdriver.ChromeOptions()
-    dc = DesiredCapabilities.CHROME.copy() #Cert エラー回避のため、でも効かないみたいなぜか？
+    #dc = DesiredCapabilities.CHROME.copy() #Cert エラー回避のため、でも効かないみたいなぜか？
     #dc['acceptSslCerts'] = True
-    dc['acceptInsecureCerts'] = True
+    #dc['acceptInsecureCerts'] = True
+    options.set_capability('acceptInsecureCerts', True)
+
 
     if run_mode== "remote":
         driver = webdriver.Remote(
             command_executor=hub_url,
-            desired_capabilities=options.to_capabilities(),
+            #desired_capabilities=options.to_capabilities(),
             #desired_capabilities=dc,se
             options=options,
         )
     else:
-        driver = webdriver.Chrome(ChromeDriverManager().install(),options=options,desired_capabilities=dc)
+        try:
+            #driver = webdriver.Chrome(ChromeDriverManager().install(),options=options,desired_capabilities=dc)
+            driver = webdriver.Chrome(options=options)
+
+        except Exception as e:
+            print(f"ドライバーの初期化中にエラーが発生しました: {e}")
+            sys.exit(1)
 
     return driver
 

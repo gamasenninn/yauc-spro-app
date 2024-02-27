@@ -11,9 +11,7 @@ import sys
 import datetime
 import shutil
 import glob
-
-
-from webdriver_manager.chrome import ChromeDriverManager
+#from webdriver_manager.chrome import ChromeDriverManager
 
 def php_login(driver):
 
@@ -28,13 +26,13 @@ def php_login(driver):
         driver.get(phpMyAdmin_url)
         WebDriverWait(driver, 5).until(
             EC.presence_of_element_located((By.NAME, 'pma_username')))
-        search_box = driver.find_element_by_name("pma_servername")
+        search_box = driver.find_element(By.NAME,"pma_servername")
         search_box.send_keys(phpMyAdmin_server)
-        search_box = driver.find_element_by_name("pma_username")
+        search_box = driver.find_element(By.NAME,"pma_username")
         search_box.send_keys(login_id)
-        search_box = driver.find_element_by_name("pma_password")
+        search_box = driver.find_element(By.NAME,"pma_password")
         search_box.send_keys(login_password)
-        driver.find_element_by_id("input_go").click()
+        driver.find_element(By.ID,"input_go").click()
         print("OK log in!")
     except Exception as e:
         print(e)
@@ -49,13 +47,12 @@ def download_db(driver):
     db_filename = os.environ['DB_FILENAME']
     db_remove_filename = os.environ['DB_REMOVE_FILENAME']
     data_dir = os.environ['DATA_DIR']
-    backup_dir = os.environ['BACKUP_DIR']
     download_tinmeout = int(os.environ['DOWNLOAD_TIMEOUT'])   
 
     driver.get(f'{phpmyadmin_url}/index.php?route=/server/export')
     WebDriverWait(driver, 5).until(
         EC.presence_of_element_located((By.ID, 'buttonGo')))
-    driver.find_element_by_id('buttonGo').click()
+    driver.find_element(By.ID,'buttonGo').click()
 
 
     remove_file_path = os.path.join(download_dir, db_remove_filename)
@@ -73,10 +70,21 @@ def download_db(driver):
 
     # save to ./data
     print("exit download....")
+
+def move_db():
+    print("moving db....")
+
+    load_dotenv()
+    db_filename = os.environ['DB_FILENAME']
+    backup_dir = os.environ['BACKUP_DIR']
+    download_dir = os.environ['DOWNLOAD_DIR']
+
     save_filename = datetime.datetime.now().strftime('%y%m%d')+'_'+db_filename
     os.makedirs(backup_dir, exist_ok=True)
     save_path = os.path.join(backup_dir, save_filename)
+    file_path = os.path.join(download_dir, db_filename)
     shutil.move(file_path, save_path)
+    print("..end moving")
 
 if __name__ == '__main__':
 
@@ -94,11 +102,11 @@ if __name__ == '__main__':
             options=options,
         )
     else:
-        driver = webdriver.Chrome(ChromeDriverManager().install(),options=options)
+        driver = webdriver.Chrome(options=options)
 
     php_login(driver)
     download_db(driver)
-
     driver.quit()
+    move_db()
 
 

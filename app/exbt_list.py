@@ -1,22 +1,15 @@
-import time
 import os
 from dotenv import load_dotenv
 from selenium import webdriver
-import chromedriver_binary
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.action_chains import ActionChains
-import requests
 from bs4 import BeautifulSoup as bs4
 import pandas as pd
-import sys
 import re
 import datetime
-#import gspread
-#import gspread_dataframe as gs_df
-from webdriver_manager.chrome import ChromeDriverManager
 from ypro_login import ypro_login
 from lxml import html
 
@@ -32,11 +25,7 @@ def ex_date(date_text):
 
 def exbt_list(driver):
 
-    pro_url = os.environ['PRO_URL']
-    detail_day_base_url = os.environ['DETAIL_DAY_BASE_URL']
     data_dir = os.environ['DATA_DIR']
-    order_filename = os.environ['ORDER_FILENAME']
-    fee_list_filename = os.environ['FEE_LIST_FILENAME']
     exbt_url = os.environ['EXBT_URL']
     exbt_list_filenmae = os.environ['EXBT_LIST_FILENAME']
 
@@ -44,7 +33,7 @@ def exbt_list(driver):
     driver.get(exbt_url)
     driver.implicitly_wait(30)
     #driver.find_element_by_xpath('//*[@id="__next"]/div[1]/div/main/div/div/div[3]/section/div/div[4]/div/div[1]/div/p[1]')
-    driver.find_element_by_xpath(expect_path)
+    driver.find_element(By.XPATH,expect_path)
     soup = bs4(driver.page_source, 'html.parser')
     lx = html.fromstring(str(soup))
     global LXS
@@ -68,7 +57,7 @@ def exbt_list(driver):
         if page > 1 :
             driver.get(f'{exbt_url}?page={page}')
             #driver.find_element_by_xpath('//*[@id="__next"]/div[1]/div/main/div/div/div[3]/section/div/div[5]/div/div/ul')
-            driver.find_element_by_xpath(ul_path)
+            driver.find_element(By.XPATH,ul_path)
             soup = bs4(driver.page_source, 'html.parser')
             lx = html.fromstring(str(soup))
             LXS.append(lx)
@@ -126,7 +115,6 @@ if __name__ == '__main__':
     hub_url = os.environ['HUB_URL']
     dmode = "local" # "remote"
     
-
     options = webdriver.ChromeOptions()
     if dmode == "remote":
         driver = webdriver.Remote(
@@ -135,7 +123,7 @@ if __name__ == '__main__':
             options=options,
         )
     else:
-        driver = webdriver.Chrome(ChromeDriverManager().install(),options=options)
+        driver = webdriver.Chrome(options=options)
         
 
     ypro_login(driver)
