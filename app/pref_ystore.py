@@ -1,5 +1,3 @@
-import csv
-import time
 import os
 from dotenv import load_dotenv
 from selenium import webdriver
@@ -9,16 +7,10 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.action_chains import ActionChains
 from bs4 import BeautifulSoup as bs4
-#import pandas as pd
 import sys
-#import re
-#import datetime
-import datetime
-import shutil
 import prefect
 from prefect import task, Flow
 from prefect.run_configs import LocalRun
-from webdriver_manager.chrome import ChromeDriverManager
 
 
 dir_name = os.path.dirname(os.path.abspath(__file__))
@@ -47,12 +39,12 @@ def init_driver():
     if run_mode == "remote":
         driver = webdriver.Remote(
             command_executor=hub_url,
-            desired_capabilities=options.to_capabilities(),
+            #desired_capabilities=options.to_capabilities(),
             #desired_capabilities=dc,
             options=options,
         )
     else:
-        driver = webdriver.Chrome(ChromeDriverManager().install(),options=options)
+        driver = webdriver.Chrome(options=options)
 
     return driver
 
