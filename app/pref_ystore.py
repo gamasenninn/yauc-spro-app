@@ -27,9 +27,6 @@ from csv2gsp_order import csv2gsp_order
 from exbt_list import exbt_list
 #os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-#g_driver = ''
-
-
 def init_driver():
     load_dotenv()
     hub_url = os.environ['HUB_URL']
@@ -49,42 +46,54 @@ def init_driver():
     return driver
 
 @task
-def t_ylogin():
-
+def t_download_order():
     logger = prefect.context.get("logger")
     driver = init_driver()
     ypro_login(driver)
     logger.info("ypro_login!")
 
-    #download_order(driver)
-    return driver
-
-@task
-def t_download_order(driver):
+    logger.info("download start.....")
     download_order(driver)
-    return driver
+    logger.info(".....end download")
+    driver.quit()
 
-@task
-def t_fee_list(driver):
-    fee_list(driver)
-    return driver
-@task
-def t_exbt_list(driver):
-    exbt_list(driver)
-    return driver
-
-@task
-def t_driver_end(drivers):
-    drivers[0].quit()
     return True
 
 @task
-def t_tran_order(e):
+def t_fee_list(t):
+    logger = prefect.context.get("logger")
+    driver = init_driver()
+    ypro_login(driver)
+    logger.info("ypro_login!")
+
+    logger.info("fee_list start.....")
+    fee_list(driver)
+    logger.info(".....end fee_list")
+    driver.quit()
+
+    return True
+
+@task
+def t_exbt_list(t):
+    logger = prefect.context.get("logger")
+    driver = init_driver()
+    ypro_login(driver)
+    logger.info("ypro_login!")
+
+    logger.info("exbt_list start.....")
+    exbt_list(driver)
+    logger.info(".....end exbt_list")
+    driver.quit()
+
+    return True
+
+@task
+def t_tran_order(t):
     csv2db_order()
     return True
 
 @task
-def t_tran_feelist(e):
+def t_tran_feelist(t):
     csv2db_feelist()
     return True
 
@@ -102,16 +111,14 @@ def t_final(t):
 
 
 with Flow("ystore-flow",run_config=LocalRun(working_dir=dir_name)) as flow:
-    #init_driver()
-    driver1 = t_ylogin()
-    driver2 = t_download_order(driver1)
-    tran_end_1 = t_tran_order(driver2)
-    driver3 = t_fee_list(driver2)
-    driver4 = t_exbt_list(driver1)
-    ext_end = t_driver_end([driver4,driver3])
-    tran_end_2 = t_tran_feelist(driver3)
-    load_end = t_load_feelist(driver3)
-    final = t_final([tran_end_1,tran_end_2,load_end,ext_end])
+
+    end_t_download_order = t_download_order()
+    tran_end_1 = t_tran_order(end_t_download_order)
+    end_t_fee_list = t_fee_list(end_t_download_order)
+    end_t_exbt_list = t_exbt_list(end_t_fee_list)
+    end_t_tran_feelist = t_tran_feelist(end_t_fee_list)
+    end_t_load_feelist = t_load_feelist(end_t_tran_feelist)
+    final = t_final([tran_end_1,end_t_exbt_list,end_t_load_feelist])
 
 if __name__ == '__main__':
 
