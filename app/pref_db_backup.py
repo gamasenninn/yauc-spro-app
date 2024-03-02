@@ -10,12 +10,8 @@ from prefect.run_configs import LocalRun
 
 
 dir_name = os.path.dirname(os.path.abspath(__file__))
-#print("dir_name:",dir_name)
 
-#sys.path.append(dir_name)
 from phpmyadmin import php_login,download_db,move_db
-#os.chdir(os.path.dirname(os.path.abspath(__file__)))
-#g_driver = ''
 
 
 def init_driver():
@@ -37,23 +33,14 @@ def init_driver():
     return driver
 
 @task
-def t_pma_login():
-
+def t_download_db():
     logger = prefect.context.get("logger")
     driver = init_driver()
     php_login(driver)
     logger.info("phpMyAdmin_login!")
 
-    #download_order(driver)
-    return driver
-
-@task
-def t_download_db(driver):
     download_db(driver)
-    return driver
 
-@task
-def t_driver_end(driver):
     driver.quit()
     return True
 
@@ -64,11 +51,9 @@ def t_move_db(driver_end):
 
 
 with Flow("db-backup",run_config=LocalRun(working_dir=dir_name)) as flow:
-    #init_driver()
-    driver1 = t_pma_login()
-    driver2 = t_download_db(driver1)
-    driver_end = t_driver_end(driver2)
-    move_end = t_move_db(driver_end)
+
+    end_t_download_db = t_download_db()
+    end_t_move_db = t_move_db(end_t_download_db)
 
 if __name__ == '__main__':
 

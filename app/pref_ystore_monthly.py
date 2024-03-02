@@ -16,7 +16,7 @@ from download_order import download_order
 
 #os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-
+"""
 @task
 def t_ylogin():
 
@@ -25,37 +25,52 @@ def t_ylogin():
     ypro_login(driver)
     logger.info("ypro_login!")
     return driver
+"""
 
 @task
-def t_download_order(driver):
+def t_download_order():
+    logger = prefect.context.get("logger")
+    driver = init_driver()
+    ypro_login(driver)
+    logger.info("ypro_login!")
+
     download_order(driver)
-    return driver
 
-@task
-def t_load_feelist_bm(driver):
-    fee_list_before_montth(driver)
-    return driver
-
-@task
-def t_trans_feelist_bm(driver):
-    csv2gsp_feelist_before_month()
-    return driver
-
-@task
-def t_final(driver):
-    print('Task all end....!')
     driver.quit()
+    return True
+
+@task
+def t_load_feelist_bm(t):
+    logger = prefect.context.get("logger")
+    driver = init_driver()
+    ypro_login(driver)
+    logger.info("ypro_login!")
+
+    fee_list_before_montth(driver)
+
+    driver.quit()    
+    return True
+
+@task
+def t_trans_feelist_bm(t):
+    csv2gsp_feelist_before_month()
+    return True
+
+@task
+def t_final(t):
+    print('Task all end....!')
+    #driver.quit()
     return True
 
 
 with Flow("ystore-monthly",run_config=LocalRun(working_dir=dir_name)) as flow:
     #init_driver()
-    driver1 = t_ylogin()
-    driver2 = t_download_order(driver1)
+    #driver1 = t_ylogin()
+    end_t_download_order = t_download_order()
 
-    driver3 = t_load_feelist_bm(driver2)
-    driver4  = t_trans_feelist_bm(driver3)
-    final = t_final(driver4)
+    end_t_load_feelist_bm = t_load_feelist_bm(end_t_download_order)
+    end_t_trans_feelist_bm  = t_trans_feelist_bm(end_t_load_feelist_bm)
+    final = t_final(end_t_trans_feelist_bm)
 
 if __name__ == '__main__':
 
